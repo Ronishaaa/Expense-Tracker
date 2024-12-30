@@ -1,0 +1,84 @@
+﻿@page "/transactions"
+@using ExpenseTracker.Models
+@using ExpenseTracker.Services
+@inject AuthenticationStateService authStateService
+@inject NavigationManager navigationManager
+
+<h1>Transactions</h1>
+
+@if (authStateService.IsAuthenticated())
+{
+    <div>
+        <h4>Welcome, @authStateService.GetAuthenticatedUser().UserName!</h4>
+    </div>
+
+    <h4>Your Transactions</h4>
+
+   
+    <button class="btn btn-primary" @onclick="OpenAddTransactionModal">Add Transaction</button>
+
+   
+    @if (isModalOpen)
+    {
+        <div class="modal" tabindex="-1" style="display:block;">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add Transaction</h5>
+                        <button type="button" class="close" @onclick="CloseModal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="form-group">
+                                <label for="amount">Amount:</label>
+                                <input type="number" id="amount" class="form-control" @bind="transactionAmount" />
+                            </div>
+                            <div class="form-group">
+                                <label for="description">Description:</label>
+                                <input type="text" id="description" class="form-control" @bind="transactionDescription" />
+                            </div>
+                            <div class="form-group">
+                                <label for="currency">Currency:</label>
+                                <select class="form-control" @bind="selectedCurrency">
+                                    <option value="NPR">NPR</option>
+                                    <option value="USD">USD</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseModal">Close</button>
+                        <button type="button" class="btn btn-primary" @onclick="SaveTransaction">Save Transaction</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    private bool isModalOpen = false;
+    private decimal transactionAmount;
+    private string transactionDescription;
+    private string selectedCurrency = "NPR"; 
+
+    private void OpenAddTransactionModal()
+    {
+      
+        isModalOpen = true;
+    }
+
+    private void CloseModal()
+    {
+     
+        isModalOpen = false;
+    }
+
+    private void SaveTransaction()
+    {
+        
+        CloseModal();
+    }
+}

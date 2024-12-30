@@ -1,0 +1,18 @@
+﻿@page "/dashboard"
+@using ExpenseTracker.Models
+@using ExpenseTracker.Services
+@inject AuthenticationStateService authStateService
+@inject NavigationManager navigationManager
+
+@if (authStateService.IsAuthenticated())
+{
+    <div>
+        <h4>Welcome, @authStateService.GetAuthenticatedUser().UserName!</h4>
+
+
+    </div>
+
+
+}
+
+

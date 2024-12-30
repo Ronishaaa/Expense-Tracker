@@ -1,0 +1,75 @@
+﻿@page "/"
+@using ExpenseTracker.Models
+@using ExpenseTracker.Services
+@inject IUserService userService
+@inject AuthenticationStateService authStateService
+@inject NavigationManager navigationManager
+
+
+<div class="d-flex screen align-items-center justify-content-center">
+
+    <div class="flex-column d-flex align-items-center container">
+    <h1>Login</h1>
+        <form class="w-100 px-lg-5">
+        <div class="d-flex flex-column mb-lg-2 gap-1 w-100">
+            <label>Username</label>
+            <input type="text" @bind="username" />
+        </div>
+            <div class="d-flex flex-column  gap-1 mb-lg-3">
+            <label>Password</label>
+            <input type="password" @bind="password" />
+        </div>
+            <div class="d-flex flex-column  gap-1 mb-lg-4  w-100">
+            <label>Currency</label>
+            <select @bind="selectedCurrency">
+                 <option value="NPR">NPR </option>
+                <option value="USD">USD</option>
+            </select>
+        </div>
+        <button type="button" class="btn-login" @onclick="LoginUser">Login</button>
+    </form>
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <p class="error-message">@errorMessage</p>
+    }
+</div>
+</div>
+
+
+@code {
+    private string username;
+    private string password;
+    private string errorMessage;
+    private string selectedCurrency = "NPR"; 
+
+    private async Task LoginUser()
+    {
+        try
+        {
+            // Validate the user credentials
+            var isValid = await userService.ValidateUserAsync(username, password);
+
+            if (isValid)
+            {
+                // Create an authenticated user object
+                var authenticatedUser = new User { UserName = username, PreferredCurrency = selectedCurrency };
+
+                // Set the authenticated user in state management
+                authStateService.SetAuthenticatedUser(authenticatedUser);
+
+                // Redirect to the dashboard page
+                navigationManager.NavigateTo("/dashboard");
+            }
+            else
+            {
+                errorMessage = "Invalid username or password.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+        }
+    }
+
+   
+}

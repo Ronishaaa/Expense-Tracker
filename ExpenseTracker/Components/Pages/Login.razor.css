@@ -1,0 +1,41 @@
+.screen {
+    height: 100vh;
+    
+}
+
+.container {
+    width: 400px;
+    background-color: #B3CDE4;
+    padding: 40px 0;
+    border: 1px solid #001B2E;
+}
+
+.btn-login {
+    background-color: #001B2E;
+    color: white;
+    width: 100%;
+    outline: none;
+    border: 1px solid #001B2E;
+    border-radius: 8px;
+    height: 42px
+}
+
+input {
+    width: 100%;
+    border: 1px solid #001B2E;
+    border-radius: 8px;
+    outline:none;
+    height:42px;
+}
+
+select {
+    width: 100%;
+    border: 1px solid #001B2E;
+    outline:none;
+    height: 42px;
+    border-radius: 8px;
+}
+
+label{
+    font-weight:600;
+}
