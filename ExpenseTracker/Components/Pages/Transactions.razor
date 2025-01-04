@@ -6,42 +6,56 @@
 @inject ITransactionService transactionService
 
 
-<h1>Transactions</h1>
-
 @if (authStateService.IsAuthenticated())
 {
-    <h4>Your Transactions</h4>
+
+    <div class="d-flex justify-content-between">
+        <h2>Your Transactions</h2>
+        <!-- Add Transaction Button -->
+        <button class="btn btn-primary" @onclick="OpenModal">Add Transaction</button>
+    </div>
 
     <!-- Filters and Search Bar -->
-    <div class="filters">
-        <button class="btn btn-secondary" @onclick="ClearFilters">All</button>
-        <button class="btn btn-secondary" @onclick="FilterIncome">Income</button>
-        <button class="btn btn-secondary" @onclick="FilterExpense">Expense</button>
-        <button class="btn btn-secondary" @onclick="FilterDebt">Debt</button>
+    <div class="my-3">
+        <button class="btn-tab @(activeFilter == "All" ? "active" : "")" @onclick="ClearFilters">All</button>
+        <button class="btn-tab @(activeFilter == "Income" ? "active" : "")" @onclick="FilterIncome">Income</button>
+        <button class="btn-tab @(activeFilter == "Expense" ? "active" : "")" @onclick="FilterExpense">Expense</button>
+        <button class="btn-tab @(activeFilter == "Debt" ? "active" : "")" @onclick="FilterDebt">Debt</button>
 
-        <input type="text" class="form-control" placeholder="Search by Title or Tag" @bind="searchTerm" @onkeydown="HandleKeyDown" />
-        <div>
-            <label>From:</label>
-            <input type="date" class="form-control" @bind="fromDate" @onkeydown="HandleDateFilter" />
-        </div>
-        <div>
-            <label>To:</label>
-            <input type="date" class="form-control" @bind="toDate" @onkeydown="HandleDateFilter" />
+        <div class="d-flex gap-2 mt-1">
+
+            <input type="text" class="form-control" placeholder="Search by Title or Tag" @bind="searchTerm" />
+
+            <div class="d-flex gap-2 align-items-center">
+                <div class="d-flex gap-2">
+                    <label>From:</label>
+                    <input type="date" class="form-control" @bind="fromDate"  />
+                </div>
+                <div class="d-flex gap-2 align-items-center">
+                    <label>To:</label>
+                    <input type="date" class="form-control" @bind="toDate" />
+                </div>
+            </div>
+            <button class="btn btn-primary" @onclick="FilterTransaction">Search</button>
         </div>
     </div>
 
-    <!-- Add Transaction Button -->
-    <button class="btn btn-primary" @onclick="OpenModal">Add Transaction</button>
+
 
     <!-- Transaction List -->
     <div class="transaction-list">
         <table class="table">
             <thead>
                 <tr>
-                    <th>#</th>
-                    <th>Description</th>
+                    <th>SNO</th>
+                    <th>Title</th>
                     <th>Amount</th>
-                    <th>Date</th>
+                    <th>Date
+                        <button class="btn btn-secondary" @onclick="ToggleSortOrder">
+                            Sort by Date (@currentSortOrder)
+                        </button>
+
+                    </th>
                     <th>Type</th>
                     <th>Tag</th>
                 </tr>
@@ -122,12 +136,14 @@
 
 @code {
     private string searchTerm;
+    private string activeFilter = "All";
     private Transaction newTransaction = new Transaction();
     private bool showModal = false;
     private DateTime? fromDate;
     private DateTime? toDate;
     private List<Transaction> transactions = new List<Transaction>();
     private List<Transaction> filteredTransactions = new List<Transaction>();
+    private string currentSortOrder = "Ascending";
 
     protected override async Task OnInitializedAsync()
     {
@@ -175,10 +191,11 @@
         if (e.Key == "Enter")
         {
             filteredTransactions = transactions.Where(t =>
-            t.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-            t.Tag.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+                t.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                t.Tag.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
         }
     }
+
 
     private void OpenModal()
     {
@@ -203,9 +220,46 @@
         CloseModal();
     }
 
+
     private void ClearFilters()
     {
+        activeFilter = "All";
         filteredTransactions = transactions;
     }
+
+    private void ToggleSortOrder()
+    {
+        // Toggle the sort order
+        currentSortOrder = currentSortOrder == "Ascending" ? "Descending" : "Ascending";
+        SortTransactions();
+    }
+
+    private void SortTransactions()
+    {
+        // Apply sorting based on the current order
+        if (currentSortOrder == "Ascending")
+        {
+            filteredTransactions = filteredTransactions.OrderBy(t => t.Date).ToList();
+        }
+        else
+        {
+            filteredTransactions = filteredTransactions.OrderByDescending(t => t.Date).ToList();
+        }
+    }
+    private void FilterTransaction()
+    {
+        filteredTransactions = transactions.Where(t =>
+            // Check search term
+            (string.IsNullOrWhiteSpace(searchTerm) ||
+             t.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+             t.Tag.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) &&
+
+            // Check date range
+            (!fromDate.HasValue || t.Date >= fromDate.Value) &&
+            (!toDate.HasValue || t.Date <= toDate.Value)
+        ).ToList();
+
+    }
 }
+
 

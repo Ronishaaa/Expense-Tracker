@@ -3,16 +3,54 @@
 @using ExpenseTracker.Services
 @inject AuthenticationStateService authStateService
 @inject NavigationManager navigationManager
+@inject ITransactionService transactionService
 
 @if (authStateService.IsAuthenticated())
 {
-    <div>
-        <h4>Welcome, @authStateService.GetAuthenticatedUser().UserName!</h4>
+            <div>
+                <h4>Welcome back, @authStateService.GetAuthenticatedUser().UserName!</h4>
 
+                <div class="d-flex gap-4">
 
-    </div>
+                    <div class="available">
+                        <h2>Available Balance</h2>
+                        <h2>@AvailableBalance.ToString("C")</h2>
+                    </div>
 
-
+                    <div class="d-flex gap-4">
+                        <div class="card">
+                            <div class="">
+                                <h5>Total Inflows</h5>
+                                <h2>@TotalIncome.ToString("C")</h2>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="">
+                                <h5>Total Outflows</h5>
+                                <h2>@TotalOutflows.ToString("C")</h2>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="">
+                                <h5>Total Debt</h5>
+                                <h2>@TotalDebt.ToString("C")</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 }
 
+@code {
+    private List<Transaction> transactions = new List<Transaction>();
 
+    private decimal TotalIncome => transactions.Where(t => t.Type == "Income").Sum(t => t.Amount);
+    private decimal TotalOutflows => transactions.Where(t => t.Type == "Expense").Sum(t => t.Amount);
+    private decimal TotalDebt => transactions.Where(t => t.Type == "Debt").Sum(t => t.Amount);
+    private decimal AvailableBalance => TotalIncome + TotalDebt - TotalOutflows;
+
+    protected override async Task OnInitializedAsync()
+    {
+        transactions = await transactionService.GetTransactionsAsync();
+    }
+}

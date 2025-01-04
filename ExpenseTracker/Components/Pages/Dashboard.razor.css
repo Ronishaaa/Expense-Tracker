@@ -1,0 +1,13 @@
+﻿.available {
+    width:356px;
+    border: 1px solid rgba(0,0,0,0.4);
+    padding: 24px;
+    background-color: #EEF3F9;
+}
+
+.card {
+    width: 232px;
+    border: 1px solid rgba(0,0,0,0.4);
+    padding: 24px;
+    background-color: #EEF3F9;
+}

@@ -1,0 +1,17 @@
+﻿.btn-tab{
+    background-color:transparent;
+    outline:none;
+    border:none;
+}
+
+.btn-tab.active {
+    background-color: transparent;
+    border-bottom: 1px solid black;
+    outline: none;
+}
+.btn-tab:focus {
+    background-color: transparent;
+    outline: none;
+    border-bottom: 1px solid black;
+}
+
