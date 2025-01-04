@@ -1,0 +1,211 @@
+﻿@page "/transactions"
+@using ExpenseTracker.Models
+@using ExpenseTracker.Services
+@inject AuthenticationStateService authStateService
+@inject NavigationManager navigationManager
+@inject ITransactionService transactionService
+
+
+<h1>Transactions</h1>
+
+@if (authStateService.IsAuthenticated())
+{
+    <h4>Your Transactions</h4>
+
+    <!-- Filters and Search Bar -->
+    <div class="filters">
+        <button class="btn btn-secondary" @onclick="ClearFilters">All</button>
+        <button class="btn btn-secondary" @onclick="FilterIncome">Income</button>
+        <button class="btn btn-secondary" @onclick="FilterExpense">Expense</button>
+        <button class="btn btn-secondary" @onclick="FilterDebt">Debt</button>
+
+        <input type="text" class="form-control" placeholder="Search by Title or Tag" @bind="searchTerm" @onkeydown="HandleKeyDown" />
+        <div>
+            <label>From:</label>
+            <input type="date" class="form-control" @bind="fromDate" @onkeydown="HandleDateFilter" />
+        </div>
+        <div>
+            <label>To:</label>
+            <input type="date" class="form-control" @bind="toDate" @onkeydown="HandleDateFilter" />
+        </div>
+    </div>
+
+    <!-- Add Transaction Button -->
+    <button class="btn btn-primary" @onclick="OpenModal">Add Transaction</button>
+
+    <!-- Transaction List -->
+    <div class="transaction-list">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Tag</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var transaction in filteredTransactions)
+                {
+                    <tr>
+                        <td>@transaction.Sno</td>
+                        <td>@transaction.Description</td>
+                        <td>@transaction.Amount.ToString("C")</td>
+                        <td>@transaction.Date.ToString("yyyy-MM-dd")</td>
+                        <td class="@(transaction.Type == "Income" ? "text-success" : transaction.Type == "Expense" ? "text-danger" : "text-warning")">
+                            @transaction.Type
+                        </td>
+                        <td>@transaction.Tag</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal for Adding Transaction -->
+    @if (showModal)
+    {
+        <div class="modal fade show d-block" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add Transaction</h5>
+                        <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label>Title</label>
+                            <input type="text" class="form-control" @bind="newTransaction.Description" />
+                        </div>
+                        <div class="mb-3">
+                            <label>Amount</label>
+                            <input type="number" class="form-control" @bind="newTransaction.Amount" />
+                        </div>
+                        <div class="mb-3">
+                            <label>Transaction Type</label>
+                            <select class="form-control" @bind="newTransaction.Type">
+                                <option value=""></option>
+                                <option value="Income">Income</option>
+                                <option value="Expense">Expense</option>
+                                <option value="Debt">Debt</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label>Tag</label>
+                            <select class="form-control" @bind="newTransaction.Tag">
+                                <option value=""></option>
+                                <option value="Salary">Salary</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label>Date</label>
+                            <input type="date" class="form-control" @bind="newTransaction.Date" />
+                        </div>
+                        <div class="mb-3">
+                            <label>Note (Optional)</label>
+                            <textarea class="form-control" @bind="newTransaction.Note"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseModal">Close</button>
+                        <button type="button" class="btn btn-primary" @onclick="AddTransaction">Add</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade show"></div>
+    }
+}
+
+@code {
+    private string searchTerm;
+    private Transaction newTransaction = new Transaction();
+    private bool showModal = false;
+    private DateTime? fromDate;
+    private DateTime? toDate;
+    private List<Transaction> transactions = new List<Transaction>();
+    private List<Transaction> filteredTransactions = new List<Transaction>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        transactions = await transactionService.GetTransactionsAsync();
+        filteredTransactions = transactions;
+    }
+
+    private void FilterTransactions(string type)
+    {
+        if (type == "All")
+        {
+            filteredTransactions = transactions;
+        }
+        else
+        {
+            filteredTransactions = transactions
+                .Where(t => t.Type.Equals(type)).ToList();
+        }
+    }
+
+    private void HandleDateFilter()
+    {
+        filteredTransactions = transactions.Where(t =>
+            (!fromDate.HasValue || t.Date >= fromDate) &&
+            (!toDate.HasValue || t.Date <= toDate)).ToList();
+    }
+
+    private void FilterIncome()
+    {
+        FilterTransactions("Income");
+    }
+
+    private void FilterExpense()
+    {
+        FilterTransactions("Expense");
+    }
+
+    private void FilterDebt()
+    {
+        FilterTransactions("Debt");
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            filteredTransactions = transactions.Where(t =>
+            t.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+            t.Tag.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+    }
+
+    private void OpenModal()
+    {
+        newTransaction = new Transaction();
+        newTransaction.Date = DateTime.Now;
+        showModal = true;
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+    }
+
+    private async Task AddTransaction()
+    {
+        if (!string.IsNullOrWhiteSpace(newTransaction.Description) && newTransaction.Amount > 0)
+        {
+            await transactionService.AddTransactionAsync(newTransaction);
+            transactions = await transactionService.GetTransactionsAsync();
+            filteredTransactions = transactions;
+        }
+        CloseModal();
+    }
+
+    private void ClearFilters()
+    {
+        filteredTransactions = transactions;
+    }
+}
+
