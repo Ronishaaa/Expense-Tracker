@@ -10,7 +10,7 @@
 {
 
     <div class="d-flex justify-content-between">
-        <h2>Your Transactions</h2>
+        <h2>Transactions</h2>
         <!-- Add Transaction Button -->
         <button class="btn btn-primary" @onclick="OpenModal">Add Transaction</button>
     </div>
@@ -61,10 +61,10 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var transaction in filteredTransactions)
+                @foreach (var (transaction,index) in filteredTransactions.Select((t,i)=>(t,i+1)))
                 {
                     <tr>
-                        <td>@transaction.Sno</td>
+                        <td>@index</td>
                         <td>@transaction.Description</td>
                         <td>@transaction.Amount.ToString("C")</td>
                         <td>@transaction.Date.ToString("yyyy-MM-dd")</td>
@@ -118,6 +118,25 @@
                             <label>Date</label>
                             <input type="date" class="form-control" @bind="newTransaction.Date" />
                         </div>
+                        @if (newTransaction.Type == "Debt")
+                        {
+                            <!-- Additional fields for Debt -->
+                            <div class="mb-4">
+                                <label>Source</label>
+                                <input type="text" class="form-control" @bind="newTransaction.Source" />
+                            </div>
+                            <div class="mb-3">
+                                <label>Due Date</label>
+                                <input type="date" class="form-control" @bind="newTransaction.DueDate" />
+                            </div>
+                            <div class="mb-3">
+                                <label>Status</label>
+                                <select class="form-control" @bind="newTransaction.Status">
+                                    <option value="Pending">Pending</option>
+                                    <option value="Cleared">Cleared</option>
+                                </select>
+                            </div>
+                        }
                         <div class="mb-3">
                             <label>Note (Optional)</label>
                             <textarea class="form-control" @bind="newTransaction.Note"></textarea>
@@ -148,66 +167,60 @@
     protected override async Task OnInitializedAsync()
     {
         transactions = await transactionService.GetTransactionsAsync();
-        filteredTransactions = transactions;
+        ApplyFilters();
     }
 
-    private void FilterTransactions(string type)
+    private void ApplyFilters()
     {
-        if (type == "All")
-        {
-            filteredTransactions = transactions;
-        }
-        else
-        {
-            filteredTransactions = transactions
-                .Where(t => t.Type.Equals(type)).ToList();
-        }
+        filteredTransactions = transactions
+     .Where(t =>
+         // Apply active filter
+         (activeFilter == "All" || t.Type.Equals(activeFilter, StringComparison.OrdinalIgnoreCase)) &&
+
+         // Apply search filter
+         (string.IsNullOrWhiteSpace(searchTerm) ||
+          t.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+          t.Tag.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) &&
+
+         // Apply date range filter
+         (!fromDate.HasValue || t.Date >= fromDate) &&
+         (!toDate.HasValue || t.Date <= toDate))
+     .OrderBy(t => currentSortOrder == "Ascending" ? t.Date.Ticks : -t.Date.Ticks) // Corrected sort logic
+     .ToList();
+
     }
 
-    private void HandleDateFilter()
+    private void OnTransactionTypeChange(ChangeEventArgs e)
     {
-        filteredTransactions = transactions.Where(t =>
-            (!fromDate.HasValue || t.Date >= fromDate) &&
-            (!toDate.HasValue || t.Date <= toDate)).ToList();
+        newTransaction.Type = e.Value.ToString();
     }
 
-    private void FilterIncome()
+    private void FilterIncome() => SetActiveFilter("Income");
+    private void FilterExpense() => SetActiveFilter("Expense");
+    private void FilterDebt() => SetActiveFilter("Debt");
+    private void ClearFilters() => SetActiveFilter("All");
+
+    private void SetActiveFilter(string filterType)
     {
-        FilterTransactions("Income");
+        activeFilter = filterType;
+        ApplyFilters();
     }
 
-    private void FilterExpense()
+    private void FilterTransaction() => ApplyFilters();
+
+    private void ToggleSortOrder()
     {
-        FilterTransactions("Expense");
+        currentSortOrder = currentSortOrder == "Ascending" ? "Descending" : "Ascending";
+        ApplyFilters();
     }
-
-    private void FilterDebt()
-    {
-        FilterTransactions("Debt");
-    }
-
-    private async Task HandleKeyDown(KeyboardEventArgs e)
-    {
-        if (e.Key == "Enter")
-        {
-            filteredTransactions = transactions.Where(t =>
-                t.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                t.Tag.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
-        }
-    }
-
 
     private void OpenModal()
     {
-        newTransaction = new Transaction();
-        newTransaction.Date = DateTime.Now;
+        newTransaction = new Transaction { Date = DateTime.Now };
         showModal = true;
     }
 
-    private void CloseModal()
-    {
-        showModal = false;
-    }
+    private void CloseModal() => showModal = false;
 
     private async Task AddTransaction()
     {
@@ -215,51 +228,9 @@
         {
             await transactionService.AddTransactionAsync(newTransaction);
             transactions = await transactionService.GetTransactionsAsync();
-            filteredTransactions = transactions;
+            ApplyFilters();
         }
         CloseModal();
     }
-
-
-    private void ClearFilters()
-    {
-        activeFilter = "All";
-        filteredTransactions = transactions;
-    }
-
-    private void ToggleSortOrder()
-    {
-        // Toggle the sort order
-        currentSortOrder = currentSortOrder == "Ascending" ? "Descending" : "Ascending";
-        SortTransactions();
-    }
-
-    private void SortTransactions()
-    {
-        // Apply sorting based on the current order
-        if (currentSortOrder == "Ascending")
-        {
-            filteredTransactions = filteredTransactions.OrderBy(t => t.Date).ToList();
-        }
-        else
-        {
-            filteredTransactions = filteredTransactions.OrderByDescending(t => t.Date).ToList();
-        }
-    }
-    private void FilterTransaction()
-    {
-        filteredTransactions = transactions.Where(t =>
-            // Check search term
-            (string.IsNullOrWhiteSpace(searchTerm) ||
-             t.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-             t.Tag.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) &&
-
-            // Check date range
-            (!fromDate.HasValue || t.Date >= fromDate.Value) &&
-            (!toDate.HasValue || t.Date <= toDate.Value)
-        ).ToList();
-
-    }
 }
-
 

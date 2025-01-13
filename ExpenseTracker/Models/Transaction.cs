@@ -14,6 +14,9 @@ namespace ExpenseTracker.Models
         public decimal Amount { get; set; }
         public string Type { get; set; }
         public string Tag { get; set; }
+        public string? Source { get; set; } 
+        public DateTime? DueDate { get; set; } 
+        public string Status { get; set; }
         public string Note { get; set; }
     }
 }
