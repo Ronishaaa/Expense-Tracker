@@ -1,0 +1,35 @@
+﻿.chip {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 14px;
+    font-weight: bold;
+    margin: 5px;
+    width: fit-content;
+}
+
+.chip .icon {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.chip.cleared {
+    background-color: #ccffcc; 
+    color: #006400; 
+}
+
+.chip.cleared .icon {
+    background-color: #008000; 
+}
+
+.chip.pending {
+    background-color: #ffcccc; 
+    color: #8b0000; 
+}
+
+.chip.pending .icon {
+    background-color: #ff0000; /
+}

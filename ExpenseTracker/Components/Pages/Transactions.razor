@@ -12,7 +12,15 @@
     <div class="d-flex justify-content-between">
         <h2>Transactions</h2>
         <!-- Add Transaction Button -->
-        <button class="btn btn-primary" @onclick="OpenModal">Add Transaction</button>
+        <MudButton Variant="Variant.Filled"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   IconColor="Color.Secondary"
+                   Size="Size.Large"
+                   @onclick="OpenModal"
+                   Style="background-color: #001B2E; color: white; border-radius:10px;">
+            Add Transaction
+        </MudButton>
+
     </div>
 
     <!-- Filters and Search Bar -->
@@ -22,7 +30,7 @@
         <button class="btn-tab @(activeFilter == "Expense" ? "active" : "")" @onclick="FilterExpense">Expense</button>
         <button class="btn-tab @(activeFilter == "Debt" ? "active" : "")" @onclick="FilterDebt">Debt</button>
 
-        <div class="d-flex gap-2 mt-1">
+        <div class="d-flex gap-2 mt-5">
 
             <input type="text" class="form-control" placeholder="Search by Title or Tag" @bind="searchTerm" />
 
@@ -36,7 +44,13 @@
                     <input type="date" class="form-control" @bind="toDate" />
                 </div>
             </div>
-            <button class="btn btn-primary" @onclick="FilterTransaction">Search</button>
+
+            <MudButton Variant="Variant.Filled"
+                       Size="Size.Large"
+                       @onclick="FilterTransaction"
+                       Style="background-color: #001B2E; color: white; border-radius:10px;">
+                Search
+            </MudButton>
         </div>
     </div>
 
@@ -68,9 +82,13 @@
                         <td>@transaction.Description</td>
                         <td>@($"{preferredCurrency} {transaction.Amount}")</td>
                         <td>@transaction.Date.ToString("yyyy-MM-dd")</td>
-                        <td class="@(transaction.Type == "Income" ? "text-success" : transaction.Type == "Expense" ? "text-danger" : "text-warning")">
-                            @transaction.Type
+                        <td>
+                            <div class="chip @(transaction.Type == "Income" ? "income" : transaction.Type == "Expense" ? "expense" : "debt")">
+                                <span class="icon"></span>
+                                @transaction.Type
+                            </div>
                         </td>
+
                         <td>@transaction.Tag</td>
                     </tr>
                 }

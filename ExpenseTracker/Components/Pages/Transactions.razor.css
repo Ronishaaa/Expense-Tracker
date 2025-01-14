@@ -2,16 +2,63 @@
     background-color:transparent;
     outline:none;
     border:none;
+    min-width:80px;
+    min-height:36px;
+    padding: 6px 12px;
 }
 
 .btn-tab.active {
     background-color: transparent;
-    border-bottom: 1px solid black;
+    border-bottom: 2px solid black;
     outline: none;
 }
 .btn-tab:focus {
     background-color: transparent;
     outline: none;
-    border-bottom: 1px solid black;
+    border-bottom: 2px solid black;
 }
 
+.chip {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 14px;
+    font-weight: bold;
+    margin: 5px;
+    width: fit-content;
+}
+
+.chip .icon {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.chip.income {
+    background-color: #ccffcc; 
+    color: #006400; 
+}
+
+.chip.income .icon {
+    background-color: #008000; 
+}
+
+.chip.expense {
+    background-color: #ffcccc; 
+    color: #8b0000; 
+}
+
+.chip.expense .icon {
+    background-color: #ff0000; /
+}
+
+.chip.debt {
+    background-color: #fff3cd; 
+    color: #856404; 
+}
+
+.chip.debt .icon {
+    background-color: #ffc107;
+}

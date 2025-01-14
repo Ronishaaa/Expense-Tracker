@@ -60,7 +60,8 @@
                         <td>@transaction.Source</td>
                         <td>@($"{preferredCurrency} {transaction.Amount}")</td>
                         <td>@transaction.DueDate?.ToString("yyyy-MM-dd")</td>
-                        <td class="@(transaction.Status == "Cleared" ? "text-success" : "text-danger" )">
+                        <td class="chip @(transaction.Status == "Cleared" ? "cleared" : "pending" )">
+                            <span class="icon"></span>
                             @(transaction.Status)
                         </td>
                         <td>
@@ -84,6 +85,11 @@
     private List<Transaction> transactions = new List<Transaction>();
     private List<Transaction> filteredTransactions = new List<Transaction>();
     private string currentSortOrder = "Ascending";
+
+     private decimal TotalIncome => transactions.Where(t => t.Type == "Income").Sum(t => t.Amount);
+    private decimal TotalOutflows => transactions.Where(t => t.Type == "Expense").Sum(t => t.Amount);
+    private decimal TotalDebt => transactions.Where(t => t.Type == "Debt").Sum(t => t.Amount);
+    private decimal AvailableBalance => TotalIncome + TotalDebt - TotalOutflows;
 
     protected override async Task OnInitializedAsync()
     {
@@ -137,11 +143,13 @@
     {
         try
         {
+
+            if (AvailableBalance> transaction.Amount){
             // Update the status of the transaction
             transaction.Status = "Cleared";
 
             // Save the changes to the database or backend
-            await transactionService.UpdateTransactionAsync(transaction);
+            await transactionService.UpdateTransactionAsync(transaction);}
 
           
         }
@@ -150,8 +158,5 @@
             Console.WriteLine($"Error clearing debt: {ex.Message}");
         }
     }
-
-
-   
 }
 
