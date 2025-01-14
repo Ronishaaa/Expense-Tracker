@@ -96,13 +96,16 @@
 
          // Apply search filter
          (string.IsNullOrWhiteSpace(searchTerm) ||
-          t.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+          t.Source.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
           t.Tag.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) &&
 
          // Apply date range filter
-         (!fromDate.HasValue || t.Date >= fromDate) &&
-         (!toDate.HasValue || t.Date <= toDate))
-     .OrderBy(t => currentSortOrder == "Ascending" ? t.Date.Ticks : -t.Date.Ticks) 
+         (!fromDate.HasValue || t.DueDate >= fromDate) &&
+         (!toDate.HasValue || t.DueDate <= toDate))
+     .OrderBy(t => currentSortOrder == "Ascending"
+                      ? (t.DueDate.HasValue ? t.DueDate.Value.Ticks : long.MaxValue)
+                      : -(t.DueDate.HasValue ? t.DueDate.Value.Ticks : long.MaxValue))
+
      .ToList();
 
     }
