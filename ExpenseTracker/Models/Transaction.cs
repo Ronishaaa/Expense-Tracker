@@ -16,7 +16,7 @@ namespace ExpenseTracker.Models
         public string Tag { get; set; }
         public string? Source { get; set; } 
         public DateTime? DueDate { get; set; } 
-        public string Status { get; set; }
+        public string? Status { get; set; }
         public string Note { get; set; }
     }
 }

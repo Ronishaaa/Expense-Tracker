@@ -132,6 +132,7 @@
                             <div class="mb-3">
                                 <label>Status</label>
                                 <select class="form-control" @bind="newTransaction.Status">
+                                    <option value=""></option>
                                     <option value="Pending">Pending</option>
                                     <option value="Cleared">Cleared</option>
                                 </select>
@@ -185,7 +186,7 @@
          // Apply date range filter
          (!fromDate.HasValue || t.Date >= fromDate) &&
          (!toDate.HasValue || t.Date <= toDate))
-     .OrderBy(t => currentSortOrder == "Ascending" ? t.Date.Ticks : -t.Date.Ticks) // Corrected sort logic
+     .OrderBy(t => currentSortOrder == "Ascending" ? t.Date.Ticks : -t.Date.Ticks) 
      .ToList();
 
     }

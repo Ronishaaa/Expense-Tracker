@@ -1,61 +1,129 @@
 ﻿@page "/debts"
+@using ExpenseTracker.Models
+@using ExpenseTracker.Services
+@inject AuthenticationStateService authStateService
+@inject NavigationManager navigationManager
+@inject ITransactionService transactionService
 
-<h1>Debts</h1>
 
-<p>This component demonstrates showing data.</p>
-
-@if (forecasts == null)
+@if (authStateService.IsAuthenticated())
 {
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
-            {
+
+    <div class="d-flex justify-content-between">
+        <h2>Debt</h2>
+    </div>
+
+    <!-- Filters and Search Bar -->
+    <div class="my-3">
+
+        <div class="d-flex gap-2 mt-1">
+
+            <input type="text" class="form-control" placeholder="Search by Title or Tag" @bind="searchTerm" />
+
+            <div class="d-flex gap-2 align-items-center">
+                <div class="d-flex gap-2">
+                    <label>From:</label>
+                    <input type="date" class="form-control" @bind="fromDate"  />
+                </div>
+                <div class="d-flex gap-2 align-items-center">
+                    <label>To:</label>
+                    <input type="date" class="form-control" @bind="toDate" />
+                </div>
+            </div>
+            <button class="btn btn-primary" @onclick="FilterTransaction">Search</button>
+        </div>
+    </div>
+
+    <!-- Debt List -->
+    <div class="transaction-list">
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+                    <th>SNO</th>
+                    <th>Source</th>
+                    <th>Amount</th>
+                    <th>Due Date
+                        <button class="btn btn-secondary" @onclick="ToggleSortOrder">
+                            Sort by Date (@currentSortOrder)
+                        </button>
 
+                    </th>
+                    <th>Status</th>
+                    <th/>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var (transaction,index) in filteredTransactions.Select((t,i)=>(t,i+1)))
+                {
+                    <tr>
+                        <td>@index</td>
+                        <td>@transaction.Source</td>
+                        <td>@transaction.Amount.ToString("C")</td>
+                        <td>@transaction.DueDate?.ToString("yyyy-MM-dd")</td>
+                        <td class="@(transaction.Status == "Cleared" ? "text-success" : "text-danger" )">
+                            @(transaction.Status ?? "Unknown")
+                        </td>
+                        <td class="@(transaction.Status == "Cleared" ? "text-success" : "text-danger" )">
+                            @transaction.Type
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+}
 @code {
-    private WeatherForecast[]? forecasts;
+    private string searchTerm;
+    private DateTime? fromDate;
+    private DateTime? toDate;
+    private List<Transaction> transactions = new List<Transaction>();
+    private List<Transaction> filteredTransactions = new List<Transaction>();
+    private string currentSortOrder = "Ascending";
 
     protected override async Task OnInitializedAsync()
     {
-        // Simulate asynchronous loading to demonstrate a loading indicator
-        await Task.Delay(500);
-
-        var startDate = DateOnly.FromDateTime(DateTime.Now);
-        var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
-        forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
-        {
-            Date = startDate.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = summaries[Random.Shared.Next(summaries.Length)]
-        }).ToArray();
+        transactions = await transactionService.GetTransactionsAsync();
+        ApplyFilters();
     }
 
-    private class WeatherForecast
+    private void ApplyFilters()
     {
-        public DateOnly Date { get; set; }
-        public int TemperatureC { get; set; }
-        public string? Summary { get; set; }
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+        filteredTransactions = transactions
+     .Where(t =>
+         // Apply active filter
+         (t.Type == "Debt" ) &&
+
+         // Apply search filter
+         (string.IsNullOrWhiteSpace(searchTerm) ||
+          t.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+          t.Tag.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) &&
+
+         // Apply date range filter
+         (!fromDate.HasValue || t.Date >= fromDate) &&
+         (!toDate.HasValue || t.Date <= toDate))
+     .OrderBy(t => currentSortOrder == "Ascending" ? t.Date.Ticks : -t.Date.Ticks) 
+     .ToList();
+
     }
+    
+
+    private void SetActiveFilter(string filterType)
+    {
+        ApplyFilters();
+    }
+
+    private void FilterTransaction() => ApplyFilters();
+
+    private void ToggleSortOrder()
+    {
+        currentSortOrder = currentSortOrder == "Ascending" ? "Descending" : "Ascending";
+        ApplyFilters();
+    }
+
+ 
+
+
+   
 }
+
