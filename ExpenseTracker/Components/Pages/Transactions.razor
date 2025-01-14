@@ -4,6 +4,7 @@
 @inject AuthenticationStateService authStateService
 @inject NavigationManager navigationManager
 @inject ITransactionService transactionService
+@inject ITagService tagService
 
 
 @if (authStateService.IsAuthenticated())
@@ -137,8 +138,10 @@
                             <label>Tag</label>
                             <select class="form-control" @bind="newTransaction.Tag">
                                 <option value=""></option>
-                                <option value="Salary">Salary</option>
-                                <option value="Other">Other</option>
+                                @foreach (var tag in tags)
+                                {
+                                    <option value="@tag.Name">@tag.Name</option>
+                                }
                             </select>
                         </div>
                         <div class="mb-3">
@@ -194,11 +197,14 @@
     private string currentSortOrder = "Ascending";
     private string descriptionErrorMessage;
     private string amountErrorMessage;
+    private List<Tag> tags = new List<Tag>();
 
+   
     protected override async Task OnInitializedAsync()
     {
         transactions = await transactionService.GetTransactionsAsync();
         ApplyFilters();
+        tags = await tagService.GetTagsAsync();
 
         var authenticatedUser = authStateService.GetAuthenticatedUser();
         if (authenticatedUser != null)

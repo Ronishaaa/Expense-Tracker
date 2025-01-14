@@ -1,0 +1,127 @@
+﻿@page "/tags"
+@using ExpenseTracker.Models
+@using ExpenseTracker.Services
+@inject AuthenticationStateService authStateService
+@inject NavigationManager navigationManager
+@inject ITagService tagService
+
+@if (authStateService.IsAuthenticated())
+{
+    <div class="d-flex justify-content-between">
+        <h2>Tags</h2>
+        <MudButton Variant="Variant.Filled"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   IconColor="Color.Secondary"
+                   Size="Size.Large"
+                   @onclick="OpenModal"
+                   Style="background-color: #001B2E; color: white; border-radius:10px;">
+            Add Tag
+        </MudButton>
+    </div>
+
+    <!-- Tags List -->
+    <div class="tag-list my-4">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>SNO</th>
+                    <th>Tag Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var (tag, index) in tags.Select((t, i) => (t, i + 1)))
+                {
+                    <tr>
+                        <td>@index</td>
+                        <td>@tag.Name</td>
+                        <td>
+                            <MudButton Variant="Variant.Outlined"
+                                       Color="Color.Error"
+                                       Size="Size.Small"
+                                       @onclick="() => DeleteTag(tag.Id)">
+                                Delete
+                            </MudButton>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal for AddingTags -->
+    @if (showModal)
+    {
+        <div class="modal fade show d-block" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">@modalTitle</h5>
+                        <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label>Tag Name</label>
+                            <input type="text" class="form-control" @bind="newTag.Name" />
+                            @if (!string.IsNullOrWhiteSpace(tagErrorMessage))
+                            {
+                                <div class="text-danger">@tagErrorMessage</div>
+                            }
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseModal">Close</button>
+                        <button type="button" class="btn btn-primary" @onclick="AddTag">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade show"></div>
+    }
+}
+
+@code {
+    private List<Tag> tags = new List<Tag>();
+    private Tag newTag= new Tag();
+    private bool showModal = false;
+    private string modalTitle = "Add Tag";
+    private string tagErrorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        tags = await tagService.GetTagsAsync();
+    }
+
+    private void OpenModal()
+    {
+        newTag = new Tag();
+        tagErrorMessage = string.Empty;
+        showModal = true;
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+    }
+
+    private async Task AddTag()
+    {
+        if (string.IsNullOrWhiteSpace(newTag.Name))
+        {
+            tagErrorMessage = "Tag name is required.";
+        }
+        else
+        {
+
+        await tagService.AddTagAsync(newTag);
+        tags = await tagService.GetTagsAsync();
+        CloseModal();
+        }
+    }
+
+    private async Task DeleteTag(int tagId)
+    {
+        await tagService.DeleteTagAsync(tagId);
+        tags = await tagService.GetTagsAsync();
+    }
+}

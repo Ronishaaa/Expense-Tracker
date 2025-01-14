@@ -20,6 +20,7 @@ namespace ExpenseTracker
             builder.Services.AddSingleton<IUserService, UserService>();
             builder.Services.AddScoped<AuthenticationStateService>();
             builder.Services.AddScoped<ITransactionService, TransactionService>();
+            builder.Services.AddScoped<ITagService, TagService>();
             builder.Services.AddMudServices();
 
 
