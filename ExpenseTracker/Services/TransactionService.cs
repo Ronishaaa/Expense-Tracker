@@ -37,6 +37,31 @@ namespace ExpenseTracker.Services
             transactions.Add(transaction);
             await SaveTransactionsAsync(transactions);
         }
+
+        public async Task UpdateTransactionAsync(Transaction transaction)
+        {
+            // Load transactions from the file
+            var transactions = await GetTransactionsAsync();
+
+            // Find the existing transaction
+            var existingTransaction = transactions.FirstOrDefault(t => t.Sno == transaction.Sno);
+            if (existingTransaction != null)
+            {
+                // Update properties
+                existingTransaction.Description = transaction.Description;
+                existingTransaction.Amount = transaction.Amount;
+                existingTransaction.Type = transaction.Type;
+                existingTransaction.DueDate = transaction.DueDate;
+                existingTransaction.Status = transaction.Status;
+
+                // Save the updated list back to the file
+                await SaveTransactionsAsync(transactions);
+            }
+            else
+            {
+                throw new Exception("Transaction not found.");
+            }
+        }
     }
 }
 

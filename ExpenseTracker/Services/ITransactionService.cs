@@ -12,5 +12,7 @@ namespace ExpenseTracker.Services
         Task<List<Transaction>> GetTransactionsAsync();
         Task SaveTransactionsAsync(List<Transaction> transactions);
         Task AddTransactionAsync(Transaction transaction);
+
+        Task UpdateTransactionAsync(Transaction transaction);
     }
 }

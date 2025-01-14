@@ -92,10 +92,19 @@
                         <div class="mb-3">
                             <label>Title</label>
                             <input type="text" class="form-control" @bind="newTransaction.Description" />
+                            @if (!string.IsNullOrEmpty(descriptionErrorMessage))
+                            {
+                                <div class="text-danger">@descriptionErrorMessage</div>
+                            }
+                        
                         </div>
                         <div class="mb-3">
                             <label>Amount</label>
                             <input type="number" class="form-control" @bind="newTransaction.Amount" />
+                            @if (!string.IsNullOrEmpty(amountErrorMessage))
+                            {
+                                <div class="text-danger">@amountErrorMessage</div>
+                            }
                         </div>
                         <div class="mb-3">
                             <label>Transaction Type</label>
@@ -165,6 +174,8 @@
     private List<Transaction> transactions = new List<Transaction>();
     private List<Transaction> filteredTransactions = new List<Transaction>();
     private string currentSortOrder = "Ascending";
+    private string descriptionErrorMessage;
+    private string amountErrorMessage;
 
     protected override async Task OnInitializedAsync()
     {
@@ -232,13 +243,62 @@
 
     private async Task AddTransaction()
     {
-        if (!string.IsNullOrWhiteSpace(newTransaction.Description) && newTransaction.Amount > 0)
+        try
         {
+            // Clear previous errors
+            descriptionErrorMessage = string.Empty;
+            amountErrorMessage = string.Empty;
+
+            // Check if the description is empty
+            if (string.IsNullOrWhiteSpace(newTransaction.Description))
+            {
+                descriptionErrorMessage = "Description is required.";
+            }
+
+            // Check if the amount is valid
+            if (newTransaction.Amount <= 0)
+            {
+                amountErrorMessage = "Amount must be greater than zero.";
+            }
+
+            // Check sufficient balance for Expense type
+            if (newTransaction.Type == "Expense")
+            {
+                var totalIncome = transactions.Where(t => t.Type == "Income").Sum(t => t.Amount);
+                var totalExpenses = transactions.Where(t => t.Type == "Expense").Sum(t => t.Amount);
+                var totalDebt = transactions.Where(t => t.Type == "Debt").Sum(t => t.Amount);
+                var availableBalance = totalIncome + totalDebt - totalExpenses;
+
+                if (newTransaction.Amount > availableBalance)
+                {
+                    amountErrorMessage = "Insufficient balance.";
+                }
+            }
+
+            // If there are any errors, stop execution
+            if (!string.IsNullOrWhiteSpace(descriptionErrorMessage) ||
+                !string.IsNullOrWhiteSpace(amountErrorMessage))
+            {
+                return;
+            }
+            else
+            {
+                
+            // Add the transaction and refresh the list
             await transactionService.AddTransactionAsync(newTransaction);
             transactions = await transactionService.GetTransactionsAsync();
             ApplyFilters();
+
+            CloseModal();
+            }
+
         }
-        CloseModal();
+        catch (Exception ex)
+        {
+            // Handle unexpected errors
+            amountErrorMessage = $"An error occurred: {ex.Message}";
+        }
     }
+
 }
 

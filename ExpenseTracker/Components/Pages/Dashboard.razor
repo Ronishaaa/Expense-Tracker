@@ -7,38 +7,42 @@
 
 @if (authStateService.IsAuthenticated())
 {
-            <div>
-                <h4>Welcome back, @authStateService.GetAuthenticatedUser().UserName!</h4>
+    <div>
+        <h4>Welcome back, @authStateService.GetAuthenticatedUser().UserName!</h4>
 
-                <div class="d-flex gap-4">
+        <div class="d-flex gap-4">
 
-                    <div class="available">
-                        <h2>Available Balance</h2>
-                        <h2>@($"{preferredCurrency} {AvailableBalance}")</h2>
+            <div class="available">
+                <h2>Available Balance</h2>
+                <h2>@($"{preferredCurrency} {AvailableBalance}")</h2>
+            </div>
+
+            <div class="d-flex gap-4">
+                <div class="card">
+                    <div class="">
+                        <h5>Total Inflows</h5>
+                        <h2>@($"{preferredCurrency} {TotalIncome}")</h2>
                     </div>
-
-                    <div class="d-flex gap-4">
-                        <div class="card">
-                            <div class="">
-                                <h5>Total Inflows</h5>
-                                <h2>@($"{preferredCurrency} {TotalIncome}")</h2>
-                            </div>
-                        </div>
-                        <div class="card">
-                            <div class="">
-                                <h5>Total Outflows</h5>
-                                <h2>@($"{preferredCurrency} {TotalOutflows}")</h2>
-                            </div>
-                        </div>
-                        <div class="card">
-                            <div class="">
-                                <h5>Total Debt</h5>
-                                <h2>@($"{preferredCurrency} {@TotalDebt}")</h2>
-                            </div>
-                        </div>
+                </div>
+                <div class="card">
+                    <div class="">
+                        <h5>Total Outflows</h5>
+                        <h2>@($"{preferredCurrency} {TotalOutflows}")</h2>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="">
+                        <h5>Total Debt</h5>
+                        <h2>@($"{preferredCurrency} {TotalDebt}")</h2>
                     </div>
                 </div>
             </div>
+        </div>
+
+        <MudPaper Class="pa-4">
+            <MudChart ChartType="ChartType.Pie" InputData="@pieChartData" InputLabels="@pieChartLabels" Width="300px" Height="300px" />
+        </MudPaper>
+    </div>
 }
 
 @code {
@@ -51,6 +55,9 @@
     private decimal TotalDebt => transactions.Where(t => t.Type == "Debt").Sum(t => t.Amount);
     private decimal AvailableBalance => TotalIncome + TotalDebt - TotalOutflows;
 
+    private string[] pieChartLabels = { "Inflows", "Outflows", "Debt" };
+    private double[] pieChartData;
+
     protected override async Task OnInitializedAsync()
     {
         var authenticatedUser = authStateService.GetAuthenticatedUser();
@@ -59,5 +66,8 @@
             preferredCurrency = authenticatedUser.PreferredCurrency;
         }
         transactions = await transactionService.GetTransactionsAsync();
+ 
+        pieChartData = new double[] { (double)TotalIncome, (double)TotalOutflows, (double)TotalDebt };
+
     }
 }
