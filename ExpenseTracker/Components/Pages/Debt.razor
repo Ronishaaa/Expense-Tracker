@@ -58,10 +58,10 @@
                     <tr>
                         <td>@index</td>
                         <td>@transaction.Source</td>
-                        <td>@transaction.Amount.ToString("C")</td>
+                        <td>@($"{preferredCurrency} {transaction.Amount}")</td>
                         <td>@transaction.DueDate?.ToString("yyyy-MM-dd")</td>
                         <td class="@(transaction.Status == "Cleared" ? "text-success" : "text-danger" )">
-                            @(transaction.Status ?? "Unknown")
+                            @(transaction.Status)
                         </td>
                         <td class="@(transaction.Status == "Cleared" ? "text-success" : "text-danger" )">
                             @transaction.Type
@@ -74,6 +74,7 @@
 
 }
 @code {
+    private string preferredCurrency;
     private string searchTerm;
     private DateTime? fromDate;
     private DateTime? toDate;
@@ -85,6 +86,11 @@
     {
         transactions = await transactionService.GetTransactionsAsync();
         ApplyFilters();
+        var authenticatedUser = authStateService.GetAuthenticatedUser();
+        if (authenticatedUser != null)
+        {
+            preferredCurrency = authenticatedUser.PreferredCurrency;
+        }
     }
 
     private void ApplyFilters()

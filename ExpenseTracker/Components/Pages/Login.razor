@@ -22,8 +22,8 @@
             <div class="d-flex flex-column  gap-1 mb-lg-4  w-100">
             <label>Currency</label>
             <select @bind="selectedCurrency">
-                 <option value="NPR">NPR </option>
-                <option value="USD">USD</option>
+                 <option value="Rs.">NPR </option>
+                 <option value="$">USD</option>
             </select>
         </div>
         <button type="button" class="btn-login" @onclick="LoginUser">Login</button>
@@ -40,7 +40,7 @@
     private string username;
     private string password;
     private string errorMessage;
-    private string selectedCurrency = "NPR"; 
+    private string selectedCurrency = "Rs."; 
 
     private async Task LoginUser()
     {

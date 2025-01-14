@@ -14,26 +14,26 @@
 
                     <div class="available">
                         <h2>Available Balance</h2>
-                        <h2>@AvailableBalance.ToString("C")</h2>
+                        <h2>@($"{preferredCurrency} {AvailableBalance}")</h2>
                     </div>
 
                     <div class="d-flex gap-4">
                         <div class="card">
                             <div class="">
                                 <h5>Total Inflows</h5>
-                                <h2>@TotalIncome.ToString("C")</h2>
+                                <h2>@($"{preferredCurrency} {TotalIncome}")</h2>
                             </div>
                         </div>
                         <div class="card">
                             <div class="">
                                 <h5>Total Outflows</h5>
-                                <h2>@TotalOutflows.ToString("C")</h2>
+                                <h2>@($"{preferredCurrency} {TotalOutflows}")</h2>
                             </div>
                         </div>
                         <div class="card">
                             <div class="">
                                 <h5>Total Debt</h5>
-                                <h2>@TotalDebt.ToString("C")</h2>
+                                <h2>@($"{preferredCurrency} {@TotalDebt}")</h2>
                             </div>
                         </div>
                     </div>
@@ -42,6 +42,8 @@
 }
 
 @code {
+    private string preferredCurrency;
+
     private List<Transaction> transactions = new List<Transaction>();
 
     private decimal TotalIncome => transactions.Where(t => t.Type == "Income").Sum(t => t.Amount);
@@ -51,6 +53,11 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var authenticatedUser = authStateService.GetAuthenticatedUser();
+        if (authenticatedUser != null)
+        {
+            preferredCurrency = authenticatedUser.PreferredCurrency;
+        }
         transactions = await transactionService.GetTransactionsAsync();
     }
 }
