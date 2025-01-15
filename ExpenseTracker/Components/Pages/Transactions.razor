@@ -26,33 +26,46 @@
 
     <!-- Filters and Search Bar -->
     <div class="my-3">
-        <button class="btn-tab @(activeFilter == "All" ? "active" : "")" @onclick="ClearFilters">All</button>
-        <button class="btn-tab @(activeFilter == "Income" ? "active" : "")" @onclick="FilterIncome">Income</button>
-        <button class="btn-tab @(activeFilter == "Expense" ? "active" : "")" @onclick="FilterExpense">Expense</button>
-        <button class="btn-tab @(activeFilter == "Debt" ? "active" : "")" @onclick="FilterDebt">Debt</button>
+        <div class="tagFilter">
+            <button class="btn-tab @(activeFilter == "All" ? "active" : "")" @onclick="ClearFilters">All</button>
+            <button class="btn-tab @(activeFilter == "Income" ? "active" : "")" @onclick="FilterIncome">Income</button>
+            <button class="btn-tab @(activeFilter == "Expense" ? "active" : "")" @onclick="FilterExpense">Expense</button>
+            <button class="btn-tab @(activeFilter == "Debt" ? "active" : "")" @onclick="FilterDebt">Debt</button>
+        </div>
 
         <div class="d-flex gap-2 mt-5">
 
-            <input type="text" class="form-control" placeholder="Search by Title or Tag" @bind="searchTerm" />
+            <input type="text" class="form-control" placeholder="Search by Title or Tag"
+                   value="@searchTerm"
+                   @oninput="e => { searchTerm = e.Value.ToString(); ApplyFilters(); }" />
 
             <div class="d-flex gap-2 align-items-center">
-                <div class="d-flex gap-2">
-                    <label>From:</label>
-                    <input type="date" class="form-control" @bind="fromDate"  />
+                <div class="d-flex gap-2 align-items-center">
+                    <div>From:</div>
+                    <input type="date" class="form-control" 
+                           value="@fromDate?.ToString("yyyy-MM-dd")"
+                           @onchange="e => {
+                       fromDate = string.IsNullOrEmpty(e.Value?.ToString())
+                           ? (DateTime?)null
+                           : DateTime.Parse(e.Value.ToString());
+                       ApplyFilters();
+                   }" />
                 </div>
                 <div class="d-flex gap-2 align-items-center">
-                    <label>To:</label>
-                    <input type="date" class="form-control" @bind="toDate" />
+                    <div>To:</div>
+                    <input type="date" class="form-control" 
+                           value="@toDate?.ToString("yyyy-MM-dd")"
+                           @onchange="e => {
+                       toDate = string.IsNullOrEmpty(e.Value?.ToString())
+                           ? (DateTime?)null
+                           : DateTime.Parse(e.Value.ToString());
+                       ApplyFilters();
+                   }" />
                 </div>
             </div>
 
-            <MudButton Variant="Variant.Filled"
-                       Size="Size.Large"
-                       @onclick="FilterTransaction"
-                       Style="background-color: #001B2E; color: white; border-radius:10px;">
-                Search
-            </MudButton>
         </div>
+
     </div>
 
 
@@ -66,9 +79,20 @@
                     <th>Title</th>
                     <th>Amount</th>
                     <th>Date
-                        <button class="btn btn-secondary" @onclick="ToggleSortOrder">
-                            Sort by Date (@currentSortOrder)
-                        </button>
+                        @if (currentSortOrder == "Ascending")
+                        {
+                            <MudIconButton Icon="@Icons.Material.Filled.ArrowDownward"
+                                           @onclick="ToggleSortOrder"
+                                           Color="Color.Primary"
+                                           Size="Size.Small" />
+                        }
+                        else
+                        {
+                            <MudIconButton Icon="@Icons.Material.Filled.ArrowUpward"
+                                           @onclick="ToggleSortOrder"
+                                           Color="Color.Primary"
+                                           Size="Size.Small" />
+                        }
 
                     </th>
                     <th>Type</th>
@@ -98,91 +122,117 @@
     </div>
 
     <!-- Modal for Adding Transaction -->
-    @if (showModal)
-    {
-        <div class="modal fade show d-block" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Add Transaction</h5>
-                        <button type="button" class="btn-close" @onclick="CloseModal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label>Title</label>
-                            <input type="text" class="form-control" @bind="newTransaction.Description" />
-                            @if (!string.IsNullOrEmpty(descriptionErrorMessage))
-                            {
-                                <div class="text-danger">@descriptionErrorMessage</div>
-                            }
-                        
+        @if (showModal)
+        {
+            <div class="model fade show d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Add Transaction</h5>
+                            <button type="button" class="btn-close" @onclick="CloseModal"></button>
                         </div>
-                        <div class="mb-3">
-                            <label>Amount</label>
-                            <input type="number" class="form-control" @bind="newTransaction.Amount" />
-                            @if (!string.IsNullOrEmpty(amountErrorMessage))
-                            {
-                                <div class="text-danger">@amountErrorMessage</div>
-                            }
-                        </div>
-                        <div class="mb-3">
-                            <label>Transaction Type</label>
-                            <select class="form-control" @bind="newTransaction.Type">
-                                <option value=""></option>
-                                <option value="Income">Income</option>
-                                <option value="Expense">Expense</option>
-                                <option value="Debt">Debt</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label>Tag</label>
-                            <select class="form-control" @bind="newTransaction.Tag">
-                                <option value=""></option>
-                                @foreach (var tag in tags)
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label>Title</label>
+                                <input type="text" class="form-control" @bind="newTransaction.Description" />
+                                @if (!string.IsNullOrEmpty(descriptionErrorMessage))
                                 {
-                                    <option value="@tag.Name">@tag.Name</option>
+                                    <div class="text-danger">@descriptionErrorMessage</div>
                                 }
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label>Date</label>
-                            <input type="date" class="form-control" @bind="newTransaction.Date" />
-                        </div>
-                        @if (newTransaction.Type == "Debt")
-                        {
-                            <!-- Additional fields for Debt -->
-                            <div class="mb-4">
-                                <label>Source</label>
-                                <input type="text" class="form-control" @bind="newTransaction.Source" />
+                        
                             </div>
+
+                        <div class="d-flex gap-3 mb-3">
+                            <div class="inputField">
+                                    <label>Amount</label>
+                                    <input type="number" class="form-control" @bind="newTransaction.Amount" />
+                                    @if (!string.IsNullOrEmpty(amountErrorMessage))
+                                    {
+                                        <div class="text-danger">@amountErrorMessage</div>
+                                    }
+                                </div>
+                            <div class="inputField">
+                                    <label>Transaction Type</label>
+                                    <select class="form-control" @bind="newTransaction.Type">
+                                        <option value=""></option>
+                                        <option value="Income">Income</option>
+                                        <option value="Expense">Expense</option>
+                                        <option value="Debt">Debt</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                        <div class="d-flex gap-2 mb-3">
+
+                            <div class="inputField">
+                                    <label>Tag</label>
+                                    <select class="form-control" @bind="newTransaction.Tag">
+                                        <option value=""></option>
+                                        <option value="Salary">Salary</option>
+                                        <option value="Food">Food</option>
+                                        <option value="Drinks">Drinks</option>
+                                        <option value="Clothes">Clothes</option>
+                                        <option value="Gadgets">Gadgets</option>
+                                        <option value="Miscellaneous">Miscellaneous</option>
+                                        <option value="Fuel">Fuel</option>
+                                        <option value="Rent">Rent</option>
+                                        <option value="EMI">EMI</option>
+                                        <option value="Party">Party</option>
+                                        @foreach (var tag in tags)
+                                        {
+                                            <option value="@tag.Name">@tag.Name</option>
+                                        }
+                                    </select>
+                                </div>
+                            <div class="inputField">
+                                    <label>Date</label>
+                                    <input type="date" class="form-control" min="@DateTime.Now.ToString("yyyy-MM-dd")" @bind="newTransaction.Date" />
+                                </div>
+                            </div>
+
+                            @if (newTransaction.Type == "Debt")
+                            {
+                                <!-- Additional fields for Debt -->
+                                <div class="d-flex gap-5">
+                                    <div class="mb-4">
+                                        <label>Source</label>
+                                        <input type="text" class="form-control" @bind="newTransaction.Source" />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label>Due Date</label>
+                                        <input type="date" class="form-control" @bind="newTransaction.DueDate" />
+
+                                    </div>
+                                </div> 
+                                
+                                <div class="mb-3">
+                                    <label>Status</label>
+                                    <select class="form-control" @bind="newTransaction.Status">
+                                        <option value=""></option>
+                                        <option value="Pending">Pending</option>
+                                        <option value="Cleared">Cleared</option>
+                                    </select>
+                                </div>
+                            }
                             <div class="mb-3">
-                                <label>Due Date</label>
-                                <input type="date" class="form-control" @bind="newTransaction.DueDate" />
+                                <label>Note (Optional)</label>
+                                <textarea class="form-control" @bind="newTransaction.Note"></textarea>
                             </div>
-                            <div class="mb-3">
-                                <label>Status</label>
-                                <select class="form-control" @bind="newTransaction.Status">
-                                    <option value=""></option>
-                                    <option value="Pending">Pending</option>
-                                    <option value="Cleared">Cleared</option>
-                                </select>
-                            </div>
-                        }
-                        <div class="mb-3">
-                            <label>Note (Optional)</label>
-                            <textarea class="form-control" @bind="newTransaction.Note"></textarea>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" @onclick="CloseModal">Close</button>
-                        <button type="button" class="btn btn-primary" @onclick="AddTransaction">Add</button>
+                        <div class="modal-footer">
+                            <MudButton Variant="Variant.Filled"
+                                       Size="Size.Large"
+                                       @onclick="AddTransaction"
+                                       Style="background-color: #001B2E; color: white; border-radius:10px;">
+                                Add
+                            </MudButton>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="modal-backdrop fade show"></div>
+            <div class="modal-backdrop fade show"></div>
+        }
     }
-}
 
 @code {
     private string preferredCurrency;
@@ -199,7 +249,7 @@
     private string amountErrorMessage;
     private List<Tag> tags = new List<Tag>();
 
-   
+
     protected override async Task OnInitializedAsync()
     {
         transactions = await transactionService.GetTransactionsAsync();
@@ -231,6 +281,8 @@
      .OrderBy(t => currentSortOrder == "Ascending" ? t.Date.Ticks : -t.Date.Ticks) 
      .ToList();
 
+
+        StateHasChanged();
     }
 
     private void OnTransactionTypeChange(ChangeEventArgs e)
@@ -248,8 +300,6 @@
         activeFilter = filterType;
         ApplyFilters();
     }
-
-    private void FilterTransaction() => ApplyFilters();
 
     private void ToggleSortOrder()
     {

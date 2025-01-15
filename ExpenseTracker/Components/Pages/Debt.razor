@@ -16,21 +16,37 @@
     <!-- Filters and Search Bar -->
     <div class="my-3">
 
-        <div class="d-flex gap-2 mt-1">
+        <div class="d-flex gap-2 mt-5">
 
-            <input type="text" class="form-control" placeholder="Search by Title or Tag" @bind="searchTerm" />
+            <input type="text" class="form-control" placeholder="Search by Title or Tag"
+                   value="@searchTerm"
+                   @oninput="e => { searchTerm = e.Value.ToString(); ApplyFilters(); }" />
 
             <div class="d-flex gap-2 align-items-center">
-                <div class="d-flex gap-2">
-                    <label>From:</label>
-                    <input type="date" class="form-control" @bind="fromDate"  />
+                <div class="d-flex gap-2 align-items-center">
+                    <div>From:</div>
+                    <input type="date" class="form-control"
+                           value="@fromDate?.ToString("yyyy-MM-dd")"
+                           @onchange="e => {
+                       fromDate = string.IsNullOrEmpty(e.Value?.ToString())
+                           ? (DateTime?)null
+                           : DateTime.Parse(e.Value.ToString());
+                       ApplyFilters();
+                   }" />
                 </div>
                 <div class="d-flex gap-2 align-items-center">
-                    <label>To:</label>
-                    <input type="date" class="form-control" @bind="toDate" />
+                    <div>To:</div>
+                    <input type="date" class="form-control"
+                           value="@toDate?.ToString("yyyy-MM-dd")"
+                           @onchange="e => {
+                       toDate = string.IsNullOrEmpty(e.Value?.ToString())
+                           ? (DateTime?)null
+                           : DateTime.Parse(e.Value.ToString());
+                       ApplyFilters();
+                   }" />
                 </div>
             </div>
-            <button class="btn btn-primary" @onclick="FilterTransaction">Search</button>
+
         </div>
     </div>
 
@@ -42,10 +58,22 @@
                     <th>SNO</th>
                     <th>Source</th>
                     <th>Amount</th>
-                    <th>Due Date
-                        <button class="btn btn-secondary" @onclick="ToggleSortOrder">
-                            Sort by Date (@currentSortOrder)
-                        </button>
+                    <th>
+                        Due Date
+                        @if (currentSortOrder == "Ascending")
+                        {
+                            <MudIconButton Icon="@Icons.Material.Filled.ArrowDownward"
+                                           @onclick="ToggleSortOrder"
+                                           Color="Color.Primary"
+                                           Size="Size.Small" />
+                        }
+                        else
+                        {
+                            <MudIconButton Icon="@Icons.Material.Filled.ArrowUpward"
+                                           @onclick="ToggleSortOrder"
+                                           Color="Color.Primary"
+                                           Size="Size.Small" />
+                        }
 
                     </th>
                     <th>Status</th>

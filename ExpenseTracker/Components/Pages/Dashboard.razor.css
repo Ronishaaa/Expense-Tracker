@@ -1,13 +1,44 @@
 ﻿.available {
-    width:356px;
+    width:456px;
     border: 1px solid rgba(0,0,0,0.4);
-    padding: 24px;
+    padding: 16px;
+    border-radius:16px;
     background-color: #EEF3F9;
 }
 
+.availableText{
+    font-size:32px;
+    margin-bottom:8px;
+}
+
+.availableBalance {
+    font-size: 48px;
+    font-weight: 500;
+}
+
 .card {
-    width: 232px;
     border: 1px solid rgba(0,0,0,0.4);
-    padding: 24px;
+    padding: 16px;
+    background-color: #EEF3F9;
+    border-radius: 16px;
+    flex-grow: 1;
+    flex-basis: 0;
+}
+
+.cardTitle{
+    font-size:20px;
+    margin-bottom:4px;
+
+}
+
+.cardContent {
+    font-size: 32px;
+    font-weight:500;
+}
+
+.list {
+    width: 100%;
+    border: 1px solid rgba(0,0,0,0.4);
+    padding: 16px;
     background-color: #EEF3F9;
 }
