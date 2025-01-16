@@ -62,6 +62,16 @@ namespace ExpenseTracker.Services
                 throw new Exception("Transaction not found.");
             }
         }
+
+        public async Task ExportTransactionsAsync(string exportFilePath)
+        {
+            var transactions = await GetTransactionsAsync();
+
+            var json = JsonSerializer.Serialize(transactions, new JsonSerializerOptions { WriteIndented = true });
+
+            await File.WriteAllTextAsync(exportFilePath, json);
+        }
+
     }
 }
 

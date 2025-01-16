@@ -36,12 +36,8 @@
                         <td>@index</td>
                         <td>@tag.Name</td>
                         <td>
-                            <MudButton Variant="Variant.Outlined"
-                                       Color="Color.Error"
-                                       Size="Size.Small"
-                                       @onclick="() => DeleteTag(tag.Id)">
-                                Delete
-                            </MudButton>
+
+                            <MudIconButton OnClick="() => DeleteTag(tag.Id)" Icon="@Icons.Material.Filled.Delete" aria-label="delete" />
                         </td>
                     </tr>
                 }
@@ -60,24 +56,35 @@
                         <button type="button" class="btn-close" @onclick="CloseModal"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="mb-3">
-                            <label>Tag Name</label>
-                            <input type="text" class="form-control" @bind="newTag.Name" />
-                            @if (!string.IsNullOrWhiteSpace(tagErrorMessage))
-                            {
-                                <div class="text-danger">@tagErrorMessage</div>
-                            }
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" @onclick="CloseModal">Close</button>
-                        <button type="button" class="btn btn-primary" @onclick="AddTag">Save</button>
+                        <form @onsubmit="HandleAddTag">
+                            <div class="mb-3">
+                                <label for="tagName">Tag Name</label>
+                                <input type="text" id="tagName" class="form-control" @bind="newTag.Name" required />
+                                @if (!string.IsNullOrWhiteSpace(tagErrorMessage))
+                                {
+                                    <div class="text-danger">@tagErrorMessage</div>
+                                }
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit">
+                                    <MudButton Variant="Variant.Filled"
+                                               IconColor="Color.Secondary"
+                                               Size="Size.Large"
+                                               Style="background-color: #001B2E; color: white; border-radius:10px;">
+                                        Add
+
+                                    </MudButton>
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
         <div class="modal-backdrop fade show"></div>
     }
+
+
 }
 
 @code {
@@ -104,7 +111,7 @@
         showModal = false;
     }
 
-    private async Task AddTag()
+    private async Task HandleAddTag()
     {
         if (string.IsNullOrWhiteSpace(newTag.Name))
         {
