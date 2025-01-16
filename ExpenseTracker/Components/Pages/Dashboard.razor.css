@@ -1,4 +1,11 @@
-﻿.available {
+﻿.heading {
+    color: #34495e;
+    font-weight: 600;
+    margin-bottom: 20px;
+    font-size:20px;
+}
+
+.available {
     width: 456px;
     padding: 16px;
     border-radius: 16px;
@@ -51,6 +58,13 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
+.piechart {
+    background-color: #f4f8fb;
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
 
 .table {
     width: 100%;
@@ -84,8 +98,4 @@
         color: #4a4a4a;
     }
 
-.title {
-    color: #34495e;
-    font-weight: 600;
-    margin-bottom: 20px;
-}
+
