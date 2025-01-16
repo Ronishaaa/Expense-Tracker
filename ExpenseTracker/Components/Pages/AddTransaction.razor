@@ -1,0 +1,250 @@
+﻿@page "/add-transaction"
+@using ExpenseTracker.Models
+@using ExpenseTracker.Services
+@inject AuthenticationStateService authStateService
+@inject NavigationManager navigationManager
+@inject ITransactionService transactionService
+@inject ITagService tagService
+
+@if (authStateService.IsAuthenticated())
+{
+    <div class="p-4">
+   
+        <div class="transactionContainer">
+            <div class="transactionContent">
+                <div class="transactionHeader">
+                    <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" OnClick="@(() => navigationManager.NavigateTo("/transactions"))" 
+                        Variant="Variant.Filled" Color="Color.Primary" Size="Size.Medium" Style="background-color: #001B2E; color: white; border-radius:10px; width:40px; height:40px"/>
+                    <h5 class="transactionTitle">Add Transaction</h5>
+                </div>
+                <form @onsubmit="HandleAddTransaction">
+                    <div class="transactionBody">
+                        <div class="mb-3">
+                            <label>Title</label>
+                            <input type="text" class="formControl" @bind="newTransaction.Description" />
+                            @if (!string.IsNullOrEmpty(descriptionErrorMessage))
+                            {
+                                <div class="text-danger">@descriptionErrorMessage</div>
+                            }
+                        </div>
+
+                        <!-- Amount and Transaction Type -->
+                        <div class="d-flex gap-3 mb-3">
+                            <div class="inputField">
+                                <label>Amount</label>
+                                <input type="number" class="formControl" @bind="newTransaction.Amount" />
+                                @if (!string.IsNullOrEmpty(amountErrorMessage))
+                                {
+                                    <div class="text-danger">@amountErrorMessage</div>
+                                }
+                            </div>
+                            <div class="inputField">
+                                <label>Transaction Type</label>
+                                <select class="formControl" @bind="newTransaction.Type">
+                                    <option value=""></option>
+                                    <option value="Income">Income</option>
+                                    <option value="Expense">Expense</option>
+                                    <option value="Debt">Debt</option>
+                                </select>
+                                @if (!string.IsNullOrEmpty(transactionTypeErrorMessage))
+                                {
+                                    <div class="text-danger">@transactionTypeErrorMessage</div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Tag and Date -->
+                        <div class="d-flex gap-3 mb-3">
+                            <div class="inputField">
+                                <label>Tag</label>
+                                <select class="formControl" @bind="newTransaction.Tag">
+                                    <option value=""></option>
+                                    <option value="Salary">Salary</option>
+                                    <option value="Food">Food</option>
+                                    <option value="Drinks">Drinks</option>
+                                    <option value="Clothes">Clothes</option>
+                                    <option value="Gadgets">Gadgets</option>
+                                    <option value="Miscellaneous">Miscellaneous</option>
+                                    <option value="Fuel">Fuel</option>
+                                    <option value="Rent">Rent</option>
+                                    <option value="EMI">EMI</option>
+                                    <option value="Party">Party</option>
+                                    @foreach (var tag in tags)
+                                    {
+                                        <option value="@tag.Name">@tag.Name</option>
+                                    }
+                                </select>
+                                @if (!string.IsNullOrEmpty(tagErrorMessage))
+                                {
+                                    <div class="text-danger">@tagErrorMessage</div>
+                                }
+                            </div>
+                            <div class="inputField">
+                                <label>Date</label>
+                                <input type="date" class="formControl" min="@DateTime.Now.ToString("yyyy-MM-dd")" @bind="newTransaction.Date" />
+                            </div>
+                        </div>
+
+                        <!-- Additional fields for Debt -->
+                        @if (newTransaction.Type == "Debt")
+                        {
+                            <div class="d-flex gap-3 mb-3">
+                                <div class="inputField">
+                                    <label>Source</label>
+                                    <input type="text" class="formControl" @bind="newTransaction.Source" />
+                                    @if (!string.IsNullOrEmpty(sourceErrorMessage))
+                                    {
+                                        <div class="text-danger">@sourceErrorMessage</div>
+                                    }
+                                </div>
+                                <div class="inputField">
+                                    <label>Due Date</label>
+                                    <input type="date" class="formControl" @bind="newTransaction.DueDate" />
+                                    @if (!string.IsNullOrEmpty(dueDateErrorMessage))
+                                    {
+                                        <div class="text-danger">@dueDateErrorMessage</div>
+                                    }
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label>Status</label>
+                                <select class="formControl" @bind="newTransaction.Status">
+                                    <option value=""></option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Cleared">Cleared</option>
+                                </select>
+                                @if (!string.IsNullOrEmpty(statusErrorMessage))
+                                {
+                                    <div class="text-danger">@statusErrorMessage</div>
+                                }
+                            </div>
+                        }
+                        <div class="mb-3">
+                            <label>Note (Optional)</label>
+                            <textarea class="formControl" @bind="newTransaction.Note"></textarea>
+                        </div>
+                    </div>
+                    <div class="transactionFooter">
+                        <button type="submit">
+                            <MudButton Variant="Variant.Filled"
+                                       IconColor="Color.Secondary"
+                                       Size="Size.Large"
+                                       Style="background-color: #001B2E; color: white; border-radius:10px; padding:8px;">
+                                Save Changes
+
+                            </MudButton>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+}
+
+@code {
+    private Transaction newTransaction = new Transaction();
+    private List<Transaction> transactions = new List<Transaction>();
+    private string descriptionErrorMessage;
+    private string amountErrorMessage;
+    private string transactionTypeErrorMessage;
+    private string tagErrorMessage;
+    private string sourceErrorMessage;
+    private string statusErrorMessage;
+    private string dueDateErrorMessage;
+    private List<Tag> tags = new List<Tag>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        transactions = await transactionService.GetTransactionsAsync();
+        tags = await tagService.GetTagsAsync();
+
+        var authenticatedUser = authStateService.GetAuthenticatedUser();
+      
+    }
+
+    private async Task HandleAddTransaction()
+    {
+        // Clear previous errors
+        descriptionErrorMessage = string.Empty;
+        amountErrorMessage = string.Empty;
+        transactionTypeErrorMessage = string.Empty;
+        tagErrorMessage = string.Empty;
+        sourceErrorMessage = string.Empty;
+        dueDateErrorMessage = string.Empty;
+        statusErrorMessage = string.Empty;
+
+        // Perform validations
+        if (string.IsNullOrWhiteSpace(newTransaction.Description))
+        {
+            descriptionErrorMessage = "Description is required.";
+        }
+
+        // Check if the amount is valid
+        if (newTransaction.Amount <= 0)
+        {
+            amountErrorMessage = "Amount must be greater than zero.";
+        }
+
+        // Check sufficient balance for Expense type
+        if (newTransaction.Type == "Expense")
+        {
+            var totalIncome = transactions.Where(t => t.Type == "Income").Sum(t => t.Amount);
+            var totalExpenses = transactions.Where(t => t.Type == "Expense").Sum(t => t.Amount);
+            var totalDebt = transactions.Where(t => t.Type == "Debt").Sum(t => t.Amount);
+            var availableBalance = totalIncome + totalDebt - totalExpenses;
+
+            if (newTransaction.Amount > availableBalance)
+            {
+                amountErrorMessage = "Insufficient balance.";
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(newTransaction.Tag))
+        {
+            tagErrorMessage = "Tag is required.";
+        }
+
+        if (string.IsNullOrWhiteSpace(newTransaction.Type))
+        {
+            transactionTypeErrorMessage = "Type is required.";
+        }
+
+        if (newTransaction.Type == "Debt")
+        {
+            if (string.IsNullOrWhiteSpace(newTransaction.Source))
+            {
+                sourceErrorMessage = "Source is required for debt.";
+            }
+            if (!newTransaction.DueDate.HasValue || newTransaction.DueDate < newTransaction.Date)
+            {
+                dueDateErrorMessage = "Due date must be after the transaction date.";
+            }
+            if (string.IsNullOrWhiteSpace(newTransaction.Status))
+            {
+                statusErrorMessage = "Status is required.";
+            }
+        }
+
+        // Stop execution if there are validation errors
+        if (!string.IsNullOrWhiteSpace(descriptionErrorMessage) ||
+            !string.IsNullOrWhiteSpace(amountErrorMessage) ||
+            !string.IsNullOrWhiteSpace(transactionTypeErrorMessage) ||
+            !string.IsNullOrWhiteSpace(tagErrorMessage) ||
+            !string.IsNullOrWhiteSpace(sourceErrorMessage) ||
+            !string.IsNullOrWhiteSpace(dueDateErrorMessage) ||
+            !string.IsNullOrWhiteSpace(statusErrorMessage))
+        {
+            return;
+        }
+
+        // Add the transaction and refresh the list
+        await transactionService.AddTransactionAsync(newTransaction);
+        transactions = await transactionService.GetTransactionsAsync();
+        navigationManager.NavigateTo("/transactions");
+
+    }
+
+   
+}
+

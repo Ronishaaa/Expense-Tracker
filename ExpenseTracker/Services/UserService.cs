@@ -13,8 +13,8 @@ namespace ExpenseTracker.Services
     {
         private User user = new User
         {
-            UserName = "ronisha", 
-            Password = "ronisha" 
+            UserName = "Ronisha", 
+            Password = "ronisha123" 
         };
 
         public async Task<bool> ValidateUserAsync(string username, string password)

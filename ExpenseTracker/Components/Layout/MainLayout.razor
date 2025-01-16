@@ -13,7 +13,9 @@
         @if (authStateService.IsAuthenticated())
         {
             <div class="top-row px-4">
-                <a href="/" target="_blank">Account</a>
+                <button class="account">
+                    <MudIconButton Icon="@Icons.Material.Filled.AccountCircle" aria-label="account"  Style="width:32px; height:32px;" />Account
+                </button>
             </div>
         }
         <article>
