@@ -113,25 +113,34 @@
                     <th>Tag</th>
                 </tr>
             </thead>
-            <tbody>
-                @foreach (var (transaction,index) in filteredTransactions.Select((t,i)=>(t,i+1)))
-                {
-                    <tr>
-                        <td>@index</td>
-                        <td>@transaction.Description</td>
-                        <td>@($"{preferredCurrency} {transaction.Amount}")</td>
-                        <td>@transaction.Date.ToString("yyyy-MM-dd")</td>
-                        <td>
-                            <div class="chip @(transaction.Type == "Income" ? "income" : transaction.Type == "Expense" ? "expense" : "debt")">
-                                <span class="icon"></span>
-                                @transaction.Type
-                            </div>
-                        </td>
+                <tbody>
+                    @if (!filteredTransactions.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="no-transactions">No transactions</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var (transaction, index) in filteredTransactions.Select((t, i) => (t, i + 1)))
+                        {
+                            <tr>
+                                <td>@index</td>
+                                <td>@transaction.Description</td>
+                                <td>@($"{preferredCurrency} {transaction.Amount}")</td>
+                                <td>@transaction.Date.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    <div class="chip @(transaction.Type == "Income" ? "income" : transaction.Type == "Expense" ? "expense" : "debt")">
+                                        <span class="icon"></span>
+                                        @transaction.Type
+                                    </div>
+                                </td>
+                                <td>@transaction.Tag</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
 
-                        <td>@transaction.Tag</td>
-                    </tr>
-                }
-            </tbody>
         </table>
     </div>
     </div>

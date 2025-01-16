@@ -59,3 +59,10 @@
         vertical-align: middle;
     }
 
+    .no-debts {
+    text-align: center;
+    color: #7f8c8d;
+    font-style: italic;
+    padding: 12px;
+    font-size: 16px;
+}

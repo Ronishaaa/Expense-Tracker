@@ -29,19 +29,28 @@
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
-                @foreach (var (tag, index) in tags.Select((t, i) => (t, i + 1)))
-                {
-                    <tr>
-                        <td>@index</td>
-                        <td>@tag.Name</td>
-                        <td>
+                <tbody>
+                    @if (!tags.Any())
+                    {
+                        <tr>
+                            <td colspan="3" class="no-tags">No tags</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var (tag, index) in tags.Select((t, i) => (t, i + 1)))
+                        {
+                            <tr>
+                                <td>@index</td>
+                                <td>@tag.Name</td>
+                                <td>
+                                    <MudIconButton OnClick="() => DeleteTag(tag.Id)" Icon="@Icons.Material.Filled.Delete" aria-label="delete" />
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
 
-                            <MudIconButton OnClick="() => DeleteTag(tag.Id)" Icon="@Icons.Material.Filled.Delete" aria-label="delete" />
-                        </td>
-                    </tr>
-                }
-            </tbody>
         </table>
     </div>
 

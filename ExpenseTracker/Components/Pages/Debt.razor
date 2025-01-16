@@ -80,28 +80,38 @@
                     <th/>
                 </tr>
             </thead>
-            <tbody>
-                @foreach (var (transaction,index) in filteredTransactions.Select((t,i)=>(t,i+1)))
-                {
-                    <tr>
-                        <td>@index</td>
-                        <td>@transaction.Source</td>
-                        <td>@($"{preferredCurrency} {transaction.Amount}")</td>
-                        <td>@transaction.DueDate?.ToString("yyyy-MM-dd")</td>
-                        <td>
-                           <div class="chip @(transaction.Status == "Cleared" ? "cleared" : "pending" )">
-                             @(transaction.Status)
-                            </div>
-                        </td>
-                        <td>
-                            @if (transaction.Status == "Pending")
-                            {
-                                <button class="btn btn-sm btn-success" @onclick="() => ClearDebt(transaction)">Clear</button>
-                            }
-                        </td>
-                    </tr>
-                }
-            </tbody>
+                <tbody>
+                    @if (!filteredTransactions.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="no-debts">No debts</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var (transaction, index) in filteredTransactions.Select((t, i) => (t, i + 1)))
+                        {
+                            <tr>
+                                <td>@index</td>
+                                <td>@transaction.Source</td>
+                                <td>@($"{preferredCurrency} {transaction.Amount}")</td>
+                                <td>@transaction.DueDate?.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    <div class="chip @(transaction.Status == "Cleared" ? "cleared" : "pending")">
+                                        @(transaction.Status)
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (transaction.Status == "Pending")
+                                    {
+                                        <button class="btn btn-sm btn-success" @onclick="() => ClearDebt(transaction)">Clear</button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+
         </table>
         </div>
     </div>

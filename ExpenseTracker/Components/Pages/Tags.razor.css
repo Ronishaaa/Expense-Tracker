@@ -32,3 +32,10 @@
         margin: 8px 0;
         vertical-align: middle;
     }
+.no-tags {
+    text-align: center;
+    color: #7f8c8d;
+    font-style: italic;
+    padding: 12px;
+    font-size: 16px;
+}
