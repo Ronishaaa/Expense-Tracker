@@ -9,34 +9,34 @@
 
 @if (authStateService.IsAuthenticated())
 {
+    <div class="p-4">
+        <div class="d-flex justify-content-between">
+            <h2>Transactions</h2>
 
-    <div class="d-flex justify-content-between">
-        <h2>Transactions</h2>
 
+            <div class="d-flex gap-3">
+                <!-- Add Transaction Button -->
+                <MudButton Variant="Variant.Filled"
+                StartIcon="@Icons.Material.Filled.Add"
+                IconColor="Color.Secondary"
+                Size="Size.Large"
+                @onclick="OpenModal"
+                Style="background-color: #001B2E; color: white; border-radius:10px;">
+                    Add Transaction
+                </MudButton>
 
-        <div class="d-flex gap-3">
-            <!-- Add Transaction Button -->
-            <MudButton Variant="Variant.Filled"
-            StartIcon="@Icons.Material.Filled.Add"
-            IconColor="Color.Secondary"
-            Size="Size.Large"
-            @onclick="OpenModal"
-            Style="background-color: #001B2E; color: white; border-radius:10px;">
-                Add Transaction
-            </MudButton>
+                <!-- Export Button -->
+                <MudButton Variant="Variant.Filled"
+                StartIcon="@Icons.Material.Filled.Download"
+                IconColor="Color.Secondary"
+                Size="Size.Large"
+                @onclick="ExportTransactions"
+                Style="background-color: #001B2E; color: white; border-radius:10px;">
+                    Export Transactions
+                </MudButton>
+            </div>
 
-            <!-- Export Button -->
-            <MudButton Variant="Variant.Filled"
-            StartIcon="@Icons.Material.Filled.Download"
-            IconColor="Color.Secondary"
-            Size="Size.Large"
-            @onclick="ExportTransactions"
-            Style="background-color: #001B2E; color: white; border-radius:10px;">
-                Export Transactions
-            </MudButton>
         </div>
-
-    </div>
 
     <!-- Filters and Search Bar -->
     <div class="my-3">
@@ -80,8 +80,8 @@
 
         </div>
 
-    </div>
-}
+        </div>
+   
 
 
     <!-- Transaction List -->
@@ -134,7 +134,8 @@
             </tbody>
         </table>
     </div>
-
+    </div>
+}
     <!-- Modal for Adding Transaction -->
     @if (showModal)
     {

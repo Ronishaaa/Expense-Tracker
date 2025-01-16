@@ -59,10 +59,12 @@
 
     <ItemGroup>
       <None Remove="Components\Pages\Debt.razor.css" />
+      <None Remove="Components\Pages\Tags.razor.css" />
     </ItemGroup>
 
     <ItemGroup>
       <Content Include="Components\Pages\Debt.razor.css" />
+      <Content Include="Components\Pages\Tags.razor.css" />
     </ItemGroup>
 
     <ItemGroup>

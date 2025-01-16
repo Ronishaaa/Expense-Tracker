@@ -1,44 +1,91 @@
 ﻿.available {
-    width:456px;
-    border: 1px solid rgba(0,0,0,0.4);
+    width: 456px;
     padding: 16px;
-    border-radius:16px;
-    background-color: #EEF3F9;
+    border-radius: 16px;
+    background-color: #f4f8fb;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
 }
 
-.availableText{
-    font-size:32px;
-    margin-bottom:8px;
+
+.availableText {
+    font-size: 24px;
+    color: #6c757d;
+    margin-bottom: 8px;
 }
 
 .availableBalance {
-    font-size: 48px;
-    font-weight: 500;
+    font-size: 40px;
+    font-weight: 600;
+    color: #2c3e50;
 }
 
 .card {
-    border: 1px solid rgba(0,0,0,0.4);
-    padding: 16px;
-    background-color: #EEF3F9;
-    border-radius: 16px;
+    padding: 20px;
+    background-color: #f4f8fb;
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     flex-grow: 1;
     flex-basis: 0;
 }
 
-.cardTitle{
-    font-size:20px;
-    margin-bottom:4px;
 
+.cardTitle {
+    font-size: 18px;
+    color: #6c757d;
+    margin-bottom: 12px;
 }
 
 .cardContent {
-    font-size: 32px;
-    font-weight:500;
+    font-size: 28px;
+    font-weight: 600;
+    color: #34495e;
 }
 
 .list {
+    padding: 20px;
+    border-radius: 12px;
+    background-color: #f9fafb;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+.table {
     width: 100%;
-    border: 1px solid rgba(0,0,0,0.4);
-    padding: 16px;
-    background-color: #EEF3F9;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+    .table thead {
+        background-color: #f4f8fb;
+        text-align: left;
+    }
+
+        .table thead th {
+            padding: 12px;
+            font-weight: 600;
+            color: #34495e;
+            border-bottom: 2px solid #e0e6ed;
+        }
+
+    .table tbody tr {
+        border-bottom: 1px solid #e0e6ed;
+        transition: background-color 0.2s ease;
+    }
+
+        .table tbody tr:hover {
+            background-color: #f9fbfc;
+        }
+
+    .table tbody td {
+        padding: 12px;
+        color: #4a4a4a;
+    }
+
+.title {
+    color: #34495e;
+    font-weight: 600;
+    margin-bottom: 20px;
 }

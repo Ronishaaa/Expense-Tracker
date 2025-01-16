@@ -7,8 +7,8 @@
 
 @if (authStateService.IsAuthenticated())
 {
-    <div>
-        <h4>Welcome back, @authStateService.GetAuthenticatedUser().UserName!</h4>
+    <div class="p-4">
+        <div class="title">Welcome back, @authStateService.GetAuthenticatedUser().UserName!</div>
 
         <!-- Summary Section -->
         <div class="d-flex col-12 gap-3">
@@ -55,14 +55,14 @@
 
         <!-- Pie Chart for Overview -->
             <MudPaper Class="pa-4 w-50">
-                <h4>Financial Overview</h4>
+                <div class="title">Financial Overview</div>
                 <MudChart ChartType="ChartType.Pie" InputData="@pieChartData" InputLabels="@pieChartLabels" Width="400px" Height="500px" />
             </MudPaper>
 
             <!-- Highest and Lowest Transactions -->
             <div class="flex-grow-1">
                 <div class="list">
-                    <h4>Highest Transactions</h4>
+                    <div class="title">Highest Transactions</div>
                     <table class="table">
                         <thead>
                             <tr>
@@ -86,7 +86,7 @@
                     </table>
                 </div>
                 <div class="list mt-3">
-                    <h4>Lowest Transactions</h4>
+                    <div class="title">Lowest Transactions</div>
                     <table class="table">
                         <thead>
                             <tr>
@@ -114,7 +114,7 @@
 
         <!-- Pending Debts -->
         <div class="mt-4">
-            <h4>Pending Debts</h4>
+            <div class="title">Pending Debts</div>
             <table class="table">
                 <thead>
                     <tr>

@@ -6,7 +6,7 @@
 @inject NavigationManager navigationManager
 
 
-<div class="d-flex screen align-items-center justify-content-center">
+<div class="screen">
 
     <div class="flex-column d-flex align-items-center container">
     <h1>Login</h1>
@@ -26,7 +26,13 @@
                  <option value="$">USD</option>
             </select>
         </div>
-        <button type="button" class="btn-login" @onclick="LoginUser">Login</button>
+            <MudButton Variant="Variant.Filled"
+                       Size="Size.Large"
+                       @onclick="LoginUser"
+                       Style="background-color: #001B2E; color: white; border-radius:10px;width:100%;">
+                Login
+            </MudButton>
+        
     </form>
     @if (!string.IsNullOrEmpty(errorMessage))
     {

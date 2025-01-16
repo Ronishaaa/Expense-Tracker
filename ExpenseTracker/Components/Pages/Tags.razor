@@ -6,7 +6,7 @@
 @inject ITagService tagService
 
 @if (authStateService.IsAuthenticated())
-{
+{<div class="p-4">
     <div class="d-flex justify-content-between">
         <h2>Tags</h2>
         <MudButton Variant="Variant.Filled"
@@ -83,7 +83,7 @@
         </div>
         <div class="modal-backdrop fade show"></div>
     }
-
+    </div>
 
 }
 

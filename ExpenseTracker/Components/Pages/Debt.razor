@@ -8,7 +8,7 @@
 
 @if (authStateService.IsAuthenticated())
 {
-
+    <div class="p-4">
     <div class="d-flex justify-content-between">
         <h2>Debt</h2>
     </div>
@@ -88,9 +88,10 @@
                         <td>@transaction.Source</td>
                         <td>@($"{preferredCurrency} {transaction.Amount}")</td>
                         <td>@transaction.DueDate?.ToString("yyyy-MM-dd")</td>
-                        <td class="chip @(transaction.Status == "Cleared" ? "cleared" : "pending" )">
-                            <span class="icon"></span>
-                            @(transaction.Status)
+                        <td>
+                           <div class="chip @(transaction.Status == "Cleared" ? "cleared" : "pending" )">
+                             @(transaction.Status)
+                            </div>
                         </td>
                         <td>
                             @if (transaction.Status == "Pending")
@@ -102,6 +103,7 @@
                 }
             </tbody>
         </table>
+        </div>
     </div>
 
 }
