@@ -56,14 +56,43 @@
         <!-- Pie Chart for Overview -->
             <div class="w-50 piechart">
 
-            <MudPaper Class="pa-4">
-                <div class="heading">Financial Overview</div>
-                <MudChart ChartType="ChartType.Pie" InputData="@pieChartData" InputLabels="@pieChartLabels" Width="400px" Height="500px"/>
-            </MudPaper>
-        </div>
+                <MudPaper Class="pa-4">
+                    <div class="heading">Financial Overview</div>
+                    <MudChart ChartType="ChartType.Pie" InputData="@pieChartData" InputLabels="@pieChartLabels" Width="400px" Height="500px"/>
+                </MudPaper>
+             </div>
 
+
+            <!-- Pending Debts -->
+            <div class="pendingList">
+                <div class="heading">Pending Debts</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>SNO</th>
+                            <th>Source</th>
+                            <th>Amount</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var (debt, index) in pendingDebts.Select((d, i) => (d, i + 1)))
+                        {
+                            <tr>
+                                <td>@index</td>
+                                <td>@debt.Source</td>
+                                <td>@($"{preferredCurrency} {debt.Amount}")</td>
+                                <td>@debt.DueDate?.ToString("yyyy-MM-dd")</td>
+                                <td>Pending</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
             <!-- Highest and Lowest Transactions -->
-            <div class="flex-grow-1">
+            <div class="d-flex mt-3 gap-3">
                 <div class="list">
                     <div class="heading">Highest Transactions</div>
                     <table class="table">
@@ -88,7 +117,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="list mt-3">
+                <div class="list">
                     <div class="heading">Lowest Transactions</div>
                     <table class="table">
                         <thead>
@@ -113,35 +142,7 @@
                     </table>
                 </div>
             </div>
-        </div>
 
-        <!-- Pending Debts -->
-        <div class="mt-4">
-            <div class="heading">Pending Debts</div>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>SNO</th>
-                        <th>Source</th>
-                        <th>Amount</th>
-                        <th>Due Date</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var (debt, index) in pendingDebts.Select((d, i) => (d, i + 1)))
-                    {
-                        <tr>
-                            <td>@index</td>
-                            <td>@debt.Source</td>
-                            <td>@($"{preferredCurrency} {debt.Amount}")</td>
-                            <td>@debt.DueDate?.ToString("yyyy-MM-dd")</td>
-                            <td>Pending</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
     </div>
 }
 

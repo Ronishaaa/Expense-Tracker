@@ -3,6 +3,7 @@
 @using ExpenseTracker.Services
 @inject AuthenticationStateService authStateService
 @inject NavigationManager navigationManager
+@inject IDialogService DialogService
 @inject ITransactionService transactionService
 
 
@@ -110,6 +111,8 @@
                     </th>
                     <th>Type</th>
                     <th>Tag</th>
+                    <th>Notes</th>
+                    <th/>
                 </tr>
             </thead>
                 <tbody>
@@ -135,6 +138,15 @@
                                     </div>
                                 </td>
                                 <td>@transaction.Tag</td>
+                                <td>@(string.IsNullOrEmpty(transaction.Note) ? "-" : transaction.Note)</td>
+                              
+                                 <td>
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error"
+                                   @onclick="() => OpenDeleteDialog(transaction.Sno)"
+                                   Style="border-radius: 50%; background-color: #FFE6E6; color: #8F2929;" />
+                                 </td>
+
                             </tr>
                         }
                     }
@@ -143,6 +155,39 @@
         </table>
     </div>
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    @if (showDeleteModal)
+    {
+        <div class="modal fade show d-block" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Transaction</h5>
+                    <button type="button" class="btn-close" @onclick="CloseDeleteModal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this transaction?</p>
+                </div>
+                <div class="modal-footer">
+                    <MudButton Variant="Variant.Filled"
+                                Size="Size.Medium"
+                                OnClick="CloseDeleteModal"
+                                Style="background-color: #001B2E; color: white; border-radius:10px;">
+                        Cancel
+                    </MudButton><MudButton Variant="Variant.Filled"
+                                            Size="Size.Medium"
+                                            OnClick="DeleteTransaction"
+                                            Style="background-color: #001B2E; color: white; border-radius:10px;">
+                        Delete
+                    </MudButton>
+                </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade show"></div>
+    }
 }
 
 
@@ -156,6 +201,8 @@
     private List<Transaction> transactions = new List<Transaction>();
     private List<Transaction> filteredTransactions = new List<Transaction>();
     private string currentSortOrder = "Ascending";
+    private bool showDeleteModal = false;
+    private int transactionToDeleteSno;
 
     protected override async Task OnInitializedAsync()
     {
@@ -226,5 +273,36 @@
             Console.Error.WriteLine($"Error exporting transactions: {ex.Message}");
         }
     }
+
+    private void OpenDeleteDialog(int sno)
+    {
+        transactionToDeleteSno = sno;  
+        showDeleteModal = true;       
+    }
+
+    private void CloseDeleteModal()
+    {
+        showDeleteModal = false; 
+    }
+
+    private async Task DeleteTransaction()
+    {
+        try
+        {
+            await transactionService.DeleteTransactionAsync(transactionToDeleteSno);
+
+            transactions = await transactionService.GetTransactionsAsync();
+
+            ApplyFilters();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting transaction: {ex.Message}");
+        }
+
+        CloseDeleteModal();
+    }
+
+
 }
 

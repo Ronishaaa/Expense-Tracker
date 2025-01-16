@@ -56,6 +56,8 @@
     border-radius: 12px;
     background-color: #f9fafb;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    flex-grow:1;
+    flex-basis:0;
 }
 
 .piechart {
@@ -72,30 +74,66 @@
     margin-top: 10px;
 }
 
-    .table thead {
-        background-color: #f4f8fb;
-        text-align: left;
-    }
+.table thead {
+    background-color: #f4f8fb;
+    text-align: left;
+}
 
-        .table thead th {
-            padding: 12px;
-            font-weight: 600;
-            color: #34495e;
-            border-bottom: 2px solid #e0e6ed;
-        }
+.table thead th {
+    padding: 12px;
+    font-weight: 600;
+    color: #34495e;
+    border-bottom: 2px solid #e0e6ed;
+}
 
-    .table tbody tr {
-        border-bottom: 1px solid #e0e6ed;
-        transition: background-color 0.2s ease;
-    }
+.table tbody tr {
+    border-bottom: 1px solid #e0e6ed;
+    transition: background-color 0.2s ease;
+}
 
-        .table tbody tr:hover {
-            background-color: #f9fbfc;
-        }
+.table tbody tr:hover {
+    background-color: #f9fbfc;
+}
 
-    .table tbody td {
-        padding: 12px;
-        color: #4a4a4a;
-    }
+.table tbody td {
+    padding: 12px;
+    color: #4a4a4a;
+}
 
+.pendingList {
+    flex-grow:1;
+    background-color: #FFD2D2;
+    border: 2px solid #8F2929;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    height:fit-content;
 
+}
+.pendingList .table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.pendingList .table thead {
+    background-color: #FFE6E6;
+    text-align: left;
+}
+
+.pendingList .table thead th {
+    padding: 12px;
+    font-weight: 600;
+    color: #8F2929;
+    border-bottom: 2px solid #F5C6C6;
+}
+
+.pendingList .table tbody tr {
+    background-color: #FFF5F5;
+    border-bottom: 1px solid #F5C6C6;
+}
+
+.pendingList .table tbody td {
+    padding: 12px;
+    color: #8F2929;
+}

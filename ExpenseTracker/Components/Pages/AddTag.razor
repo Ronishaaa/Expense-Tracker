@@ -1,0 +1,73 @@
+﻿@page "/add-tag"
+@using ExpenseTracker.Models
+@using ExpenseTracker.Services
+@inject AuthenticationStateService authStateService
+@inject NavigationManager navigationManager
+@inject ITagService tagService
+
+@if (authStateService.IsAuthenticated())
+{
+    <div class="p-4">
+
+        <div class="tagContainer">
+            <div class="tagContent">
+                <div class="tagHeader">
+                    <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" OnClick="@(() => navigationManager.NavigateTo("/tags"))"
+                                   Variant="Variant.Filled" Color="Color.Primary" Size="Size.Medium" Style="background-color: #001B2E; color: white; border-radius:10px; width:40px; height:40px" />
+                    <h5 class="tagTitle">Add Tag</h5>
+                        </div>
+                <div class="tagBody">
+                    <form @onsubmit="HandleAddTag">
+                        <div class="mb-3">
+                            <label for="tagName">Tag Name</label>
+                            <input type="text" id="tagName" class="form-control" @bind="newTag.Name" required />
+                            @if (!string.IsNullOrWhiteSpace(tagErrorMessage))
+                            {
+                                <div class="text-danger">@tagErrorMessage</div>
+                            }
+                        </div>
+                        <div class="tagFooter">
+                            <button type="submit">
+                                <MudButton Variant="Variant.Filled"
+                                            IconColor="Color.Secondary"
+                                            Size="Size.Large"
+                                            Style="background-color: #001B2E; color: white; border-radius:10px; padding:8px;">
+                                    Save Changes
+
+                                </MudButton>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+
+@code {
+    private List<Tag> tags = new List<Tag>();
+    private Tag newTag = new Tag();
+    private string tagErrorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        tags = await tagService.GetTagsAsync();
+    }
+
+    private async Task HandleAddTag()
+    {
+        if (string.IsNullOrWhiteSpace(newTag.Name))
+        {
+            tagErrorMessage = "Tag name is required.";
+        }
+        else
+        {
+
+            await tagService.AddTagAsync(newTag);
+            tags = await tagService.GetTagsAsync();
+            navigationManager.NavigateTo("/tags");
+        }
+    }
+
+}

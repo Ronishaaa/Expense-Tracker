@@ -14,5 +14,7 @@ namespace ExpenseTracker.Services
         Task AddTransactionAsync(Transaction transaction);
         Task UpdateTransactionAsync(Transaction transaction);
         Task ExportTransactionsAsync(string exportFilePath);
+        Task DeleteTransactionAsync(int transactionSno);
+
     }
 }

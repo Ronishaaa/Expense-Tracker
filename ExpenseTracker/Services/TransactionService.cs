@@ -72,6 +72,29 @@ namespace ExpenseTracker.Services
             await File.WriteAllTextAsync(exportFilePath, json);
         }
 
+        public async Task DeleteTransactionAsync(int transactionSno)
+        {
+            var transactions = await GetTransactionsAsync();
+            var transactionToRemove = transactions.FirstOrDefault(t => t.Sno == transactionSno);
+
+            if (transactionToRemove != null)
+            {
+                transactions.Remove(transactionToRemove);
+
+                for (int i = 0; i < transactions.Count; i++)
+                {
+                    transactions[i].Sno = i + 1;
+                }
+
+                await SaveTransactionsAsync(transactions);
+            }
+            else
+            {
+                throw new Exception("Transaction not found.");
+            }
+        }
+
+
     }
 }
 

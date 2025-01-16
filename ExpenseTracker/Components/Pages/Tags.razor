@@ -6,29 +6,31 @@
 @inject ITagService tagService
 
 @if (authStateService.IsAuthenticated())
-{<div class="p-4">
-    <div class="d-flex justify-content-between">
-        <h2>Tags</h2>
-        <MudButton Variant="Variant.Filled"
-                   StartIcon="@Icons.Material.Filled.Add"
-                   IconColor="Color.Secondary"
-                   Size="Size.Large"
-                   @onclick="OpenModal"
-                   Style="background-color: #001B2E; color: white; border-radius:10px;">
-            Add Tag
-        </MudButton>
-    </div>
+{
+    <div class="p-4">
+        <div class="d-flex justify-content-between">
+            <h2>Tags</h2>
+            <MudButton Variant="Variant.Filled"
+                        StartIcon="@Icons.Material.Filled.Add"
+                        IconColor="Color.Secondary"
+                        Size="Size.Large"
+                        @onclick="@(() => navigationManager.NavigateTo("/add-tag"))"
+                        Style="background-color: #001B2E; color: white; border-radius:10px;">
+                Add Tag
+            </MudButton>
+      
+        </div>
 
-    <!-- Tags List -->
-    <div class="tag-list my-4">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>SNO</th>
-                    <th>Tag Name</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
+        <!-- Tags List -->
+        <div class="tag-list my-4">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>SNO</th>
+                        <th>Tag Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
                 <tbody>
                     @if (!tags.Any())
                     {
@@ -51,89 +53,21 @@
                     }
                 </tbody>
 
-        </table>
-    </div>
-
-    <!-- Modal for AddingTags -->
-    @if (showModal)
-    {
-        <div class="modal fade show d-block" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">@modalTitle</h5>
-                        <button type="button" class="btn-close" @onclick="CloseModal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form @onsubmit="HandleAddTag">
-                            <div class="mb-3">
-                                <label for="tagName">Tag Name</label>
-                                <input type="text" id="tagName" class="form-control" @bind="newTag.Name" required />
-                                @if (!string.IsNullOrWhiteSpace(tagErrorMessage))
-                                {
-                                    <div class="text-danger">@tagErrorMessage</div>
-                                }
-                            </div>
-                            <div class="modal-footer">
-                                <button type="submit">
-                                    <MudButton Variant="Variant.Filled"
-                                               IconColor="Color.Secondary"
-                                               Size="Size.Large"
-                                               Style="background-color: #001B2E; color: white; border-radius:10px;">
-                                        Add
-
-                                    </MudButton>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+            </table>
         </div>
-        <div class="modal-backdrop fade show"></div>
-    }
+
     </div>
 
 }
 
 @code {
     private List<Tag> tags = new List<Tag>();
-    private Tag newTag= new Tag();
-    private bool showModal = false;
-    private string modalTitle = "Add Tag";
-    private string tagErrorMessage;
 
     protected override async Task OnInitializedAsync()
     {
         tags = await tagService.GetTagsAsync();
     }
 
-    private void OpenModal()
-    {
-        newTag = new Tag();
-        tagErrorMessage = string.Empty;
-        showModal = true;
-    }
-
-    private void CloseModal()
-    {
-        showModal = false;
-    }
-
-    private async Task HandleAddTag()
-    {
-        if (string.IsNullOrWhiteSpace(newTag.Name))
-        {
-            tagErrorMessage = "Tag name is required.";
-        }
-        else
-        {
-
-        await tagService.AddTagAsync(newTag);
-        tags = await tagService.GetTagsAsync();
-        CloseModal();
-        }
-    }
 
     private async Task DeleteTag(int tagId)
     {
