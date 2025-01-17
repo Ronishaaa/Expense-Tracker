@@ -90,7 +90,7 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>SNO</th>
+                    <th>S.No</th>
                     <th>Title</th>
                     <th>Amount</th>
                     <th>Date
@@ -261,40 +261,28 @@
         ApplyFilters();
     }
 
-   
-
-private async Task ExportTransactions()
-{
-    try
+    private async Task ExportTransactions()
     {
-        // Define the path where the file will be saved
-        string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Transactions.json");
+        try
+        {
+            string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Transactions.json");
 
-        // Call the service to export the transactions to a JSON file
-        await transactionService.ExportTransactionsAsync(filePath);
+            await transactionService.ExportTransactionsAsync(filePath);
 
-        // Read the file content as a base64 string
-        byte[] fileBytes = await File.ReadAllBytesAsync(filePath);
-        var fileUrl = $"data:application/json;base64,{Convert.ToBase64String(fileBytes)}";
-        var fileName = "Transactions.json";
+            byte[] fileBytes = await File.ReadAllBytesAsync(filePath);
+            var fileUrl = $"data:application/json;base64,{Convert.ToBase64String(fileBytes)}";
+            var fileName = "Transactions.json";
 
-        // Trigger file download using JS interop
-        await JSRuntime.InvokeVoidAsync("downloadFile", fileUrl, fileName);
+            await JSRuntime.InvokeVoidAsync("downloadFile", fileUrl, fileName);
 
-        // Inform the user that the file is ready for download
-        DialogService.ShowMessageBox("Export Success", $"Transactions have been exported to {filePath}");
+            DialogService.ShowMessageBox("Export Success", $"Transactions have been exported to {filePath}");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error exporting transactions: {ex.Message}");
+            DialogService.ShowMessageBox("Export Failed", "There was an error exporting the transactions.");
+        }
     }
-    catch (Exception ex)
-    {
-        // Log the error and notify the user
-        Console.Error.WriteLine($"Error exporting transactions: {ex.Message}");
-        DialogService.ShowMessageBox("Export Failed", "There was an error exporting the transactions.");
-    }
-}
-
-
-
-
 
     private void OpenDeleteDialog(int sno)
     {

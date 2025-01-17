@@ -55,7 +55,7 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>SNO</th>
+                    <th>S.No</th>
                     <th>Source</th>
                     <th>Amount</th>
                     <th>
@@ -129,7 +129,6 @@
      private decimal TotalIncome => transactions.Where(t => t.Type == "Income").Sum(t => t.Amount);
     private decimal TotalOutflows => transactions.Where(t => t.Type == "Expense").Sum(t => t.Amount);
     private decimal TotalDebt => transactions.Where(t => t.Type == "Debt").Sum(t => t.Amount);
-    private decimal AvailableBalance => TotalIncome + TotalDebt - TotalOutflows;
 
     protected override async Task OnInitializedAsync()
     {
@@ -184,7 +183,8 @@
         try
         {
 
-            if (AvailableBalance> transaction.Amount){
+            if (TotalIncome > transaction.Amount)
+            {
             // Update the status of the transaction
             transaction.Status = "Cleared";
 

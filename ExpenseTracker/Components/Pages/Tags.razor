@@ -26,7 +26,7 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>SNO</th>
+                        <th>S.No</th>
                         <th>Tag Name</th>
                         <th>Actions</th>
                     </tr>
@@ -46,7 +46,10 @@
                                 <td>@index</td>
                                 <td>@tag.Name</td>
                                 <td>
-                                    <MudIconButton OnClick="() => DeleteTag(tag.Id)" Icon="@Icons.Material.Filled.Delete" aria-label="delete" />
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                                   Color="Color.Error"
+                                                   @onclick="() => OpenDeleteDialog(tag.Id)"
+                                                   Style="border-radius: 50%; background-color: #FFE6E6; color: #8F2929;" />
                                 </td>
                             </tr>
                         }
@@ -55,23 +58,85 @@
 
             </table>
         </div>
-
     </div>
+
+        <!-- Delete Confirmation Modal -->
+        @if (showDeleteModal)
+        {
+            <div class="modal fade show d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title">Delete Tag</h5>
+                            <button type="button" class="btn-close" @onclick="CloseDeleteModal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to delete this tag?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <MudButton Variant="Variant.Filled"
+                                       Size="Size.Medium"
+                                       OnClick="CloseDeleteModal"
+                                       Style="background-color: #001B2E; color: white; border-radius:10px;">
+                                Cancel
+                            </MudButton><MudButton Variant="Variant.Filled"
+                                                   Size="Size.Medium"
+                                                   OnClick="DeleteTag"
+                                                   Style="background-color: #001B2E; color: white; border-radius:10px;">
+                                Delete
+                            </MudButton>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-backdrop fade show"></div>
+        }
+
 
 }
 
 @code {
     private List<Tag> tags = new List<Tag>();
+    private bool showDeleteModal = false;
+    private int tagToDeleteSno;
 
     protected override async Task OnInitializedAsync()
     {
         tags = await tagService.GetTagsAsync();
     }
 
+    private void OpenDeleteDialog(int sno)
+    {
+        tagToDeleteSno = sno;
+        showDeleteModal = true;
+    }
 
+    private void CloseDeleteModal()
+    {
+        showDeleteModal = false;
+    }
     private async Task DeleteTag(int tagId)
     {
         await tagService.DeleteTagAsync(tagId);
-        tags = await tagService.GetTagsAsync();
+    }
+
+    private async Task DeleteTag()
+    {
+        try
+        {
+            await tagService.DeleteTagAsync(tagToDeleteSno);
+
+
+            tags = await tagService.GetTagsAsync();
+
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting transaction: {ex.Message}");
+        }
+
+        CloseDeleteModal();
     }
 }
