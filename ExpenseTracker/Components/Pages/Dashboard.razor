@@ -92,56 +92,83 @@
             </div>
         </div>
             <!-- Highest and Lowest Transactions -->
-            <div class="d-flex mt-3 gap-3">
-                <div class="list">
-                    <div class="heading">Highest Transactions</div>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>SNO</th>
-                                <th>Title</th>
-                                <th>Date</th>
-                                <th>Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var (transaction, index) in highestTransactions.Select((d, i) => (d, i + 1)))
-                            {
-                                <tr>
-                                    <td>@index</td>
-                                    <td>@transaction.Description</td>
-                                    <td>@transaction.Date.ToString("yyyy-MM-dd")</td>
-                                    <td>@($"{preferredCurrency} {transaction.Amount}")</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+        <div class="d-flex gap-2 mt-5 dateRange align-items-center">
+            <div class="dateRangeTitle">Filter Transactions by Date</div>
+            <div class="datePickerContainer">
+                <div class="datePicker">
+                    <label for="fromDate">From:</label>
+                    <input type="date" id="fromDate" class="formControl"
+                            value="@fromDate?.ToString("yyyy-MM-dd")"
+                            @onchange="e => {
+                        fromDate = string.IsNullOrEmpty(e.Value?.ToString())
+                            ? (DateTime?)null
+                            : DateTime.Parse(e.Value.ToString());
+                        ApplyFilters();
+                    }" />
                 </div>
-                <div class="list">
-                    <div class="heading">Lowest Transactions</div>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>SNO</th>
-                                <th>Title</th>
-                                <th>Date</th>
-                                <th>Amount</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var (transaction, index) in lowestTransactions.Select((d, i) => (d, i + 1)))
-                            {
-                                <tr>
-                                    <td>@index</td>
-                                    <td>@transaction.Description</td>
-                                    <td>@transaction.Date.ToString("yyyy-MM-dd")</td>
-                                    <td>@($"{preferredCurrency} {transaction.Amount}")</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                <div class="datePicker">
+                    <label for="toDate">To:</label>
+                    <input type="date" id="toDate" class="formControl"
+                            value="@toDate?.ToString("yyyy-MM-dd")"
+                            @onchange="e => {
+                        toDate = string.IsNullOrEmpty(e.Value?.ToString())
+                            ? (DateTime?)null
+                            : DateTime.Parse(e.Value.ToString());
+                        ApplyFilters();
+                    }" />
                 </div>
             </div>
+        </div>
+        <div class="d-flex mt-3 gap-3">
+            <div class="list">
+                <div class="heading">Highest Transactions</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>SNO</th>
+                            <th>Title</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var (transaction, index) in highestTransactions.Select((d, i) => (d, i + 1)))
+                        {
+                            <tr>
+                                <td>@index</td>
+                                <td>@transaction.Description</td>
+                                <td>@transaction.Date.ToString("yyyy-MM-dd")</td>
+                                <td>@($"{preferredCurrency} {transaction.Amount}")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="list">
+                <div class="heading">Lowest Transactions</div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>SNO</th>
+                            <th>Title</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var (transaction, index) in lowestTransactions.Select((d, i) => (d, i + 1)))
+                        {
+                            <tr>
+                                <td>@index</td>
+                                <td>@transaction.Description</td>
+                                <td>@transaction.Date.ToString("yyyy-MM-dd")</td>
+                                <td>@($"{preferredCurrency} {transaction.Amount}")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
     </div>
 }
@@ -152,6 +179,8 @@
     private List<Transaction> pendingDebts = new List<Transaction>();
     private List<Transaction> highestTransactions = new List<Transaction>();
     private List<Transaction> lowestTransactions = new List<Transaction>();
+    private DateTime? fromDate;
+    private DateTime? toDate;
 
     private decimal TotalIncome => transactions.Where(t => t.Type == "Income").Sum(t => t.Amount);
     private decimal TotalOutflows => transactions.Where(t => t.Type == "Expense").Sum(t => t.Amount);
@@ -185,5 +214,29 @@
 
         // Prepare pie chart data
         pieChartData = new double[] { (double)TotalIncome, (double)TotalOutflows, (double)TotalDebt };
+    }
+
+    private void ApplyFilters()
+    {
+        // Apply filters to highest transactions
+        highestTransactions = transactions
+            .Where(t =>
+                (!fromDate.HasValue || t.Date >= fromDate) &&
+                (!toDate.HasValue || t.Date <= toDate))
+            .OrderByDescending(t => t.Amount)
+            .Take(5)
+            .ToList();
+
+        // Apply filters to lowest transactions
+        lowestTransactions = transactions
+            .Where(t =>
+                (!fromDate.HasValue || t.Date >= fromDate) &&
+                (!toDate.HasValue || t.Date <= toDate))
+            .OrderBy(t => t.Amount)
+            .Take(5)
+            .ToList();
+
+        // Notify the UI to update
+        StateHasChanged();
     }
 }

@@ -24,12 +24,6 @@ namespace ExpenseTracker.Services
             return user.UserName == username && user.Password == password;
         }
 
-        public Task UpdateUserAsync(string newUsername, string newPassword)
-        {
-            user.UserName = newUsername;
-            user.Password = newPassword;
-            return Task.CompletedTask;
-        }
 
         
     }

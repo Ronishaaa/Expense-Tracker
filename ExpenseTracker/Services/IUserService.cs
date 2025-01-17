@@ -10,7 +10,6 @@ namespace ExpenseTracker.Services
 
         Task<bool> ValidateUserAsync(string username, string password);
 
-        Task UpdateUserAsync(string newUsername, string newPassword);
 
        
     }

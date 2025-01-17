@@ -137,3 +137,59 @@
     padding: 12px;
     color: #8F2929;
 }
+
+.dateRange {
+    background-color: #f9fafb;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    width:100%;
+}
+
+.dateRange {
+    background-color: #f9fafb;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dateRangeTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 15px;
+}
+
+.datePickerContainer {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.datePicker {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.datePicker label {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #6b7280;
+    margin-bottom: 5px;
+}
+
+.datePicker input {
+    font-size: 1rem;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    color: #374151;
+    background-color: #f9fafb;
+}
+
+.dateRange .formControl {
+    flex-grow: 1;
+}
